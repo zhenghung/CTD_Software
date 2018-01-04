@@ -6,7 +6,9 @@ except ImportError:
     import tkinter as Tkinter
 
 
-import comWindow as myCOM
+import comWindow
+import moiWindow
+import calWindow
 # -----------------------------------------------------------------------------
 # To use matplotlib, the author must use the TkAgg backend, or none of this will
 # work and a long string of inexplicable error messages will ensue.
@@ -183,7 +185,7 @@ MakePlot.pack(side='bottom', fill='both')
 # COM Mode
 def com_mode(event=None):
     global cellA, cellB, cellC
-    myCOM.com_start(cs_config)
+    comWindow.com_start(cs_config)
 
 
 # COM Button
@@ -193,10 +195,7 @@ Mode_COM.pack(side='top', fill='both')
 # MOI Mode
 def moi_mode(event=None):
     global timer
-    moi_window = Tkinter.Toplevel(root)
-    moi_frame = Tkinter.Frame(moi_window)
-    moi_label = Tkinter.Label(moi_window, text="Moment of Inertia Mode", font='Helvetica 16 bold')
-    moi_label.pack(side='top')
+    moiWindow.moi_start(cs_config)
 
 # MOI Button
 Mode_MOI = Tkinter.Button(root, command = moi_mode, text="Measure Moment of Inertia")
@@ -205,10 +204,7 @@ Mode_MOI.pack(side='top', fill='both')
 # Calibration Mode
 def cal_mode(event=None):
     global cellA, cellB, cellC, timer
-    cal_window = Tkinter.Toplevel(root)
-    cal_frame = Tkinter.Frame(cal_window)
-    cal_label = Tkinter.Label(cal_window, text="Calibration Mode", font='Helvetica 16 bold')
-    cal_label.pack(side='top')
+    calWindow.cal_start(cs_config)
 
 # Calibration Button
 Mode_COM = Tkinter.Button(root, command = cal_mode, text="Calibrate Measurements")
