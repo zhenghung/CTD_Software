@@ -61,7 +61,13 @@ optLabel.grid(row = 1, column = 0)
 
 varOption = tkinter.StringVar()
 varOption.set('LED OFF')
-tkCheckButton = tkinter.OptionMenu(frame, varOption, 'LED OFF','LED ON','LED Blink', command = setCheckButtonText)
+tkCheckButton = tkinter.OptionMenu(
+	frame, 
+	varOption, 
+	'LED OFF',
+	'LED ON',
+	'LED Blink', 
+	command = setCheckButtonText)
 tkCheckButton.grid(row = 1, column = 1)
 
 # tkCheckButton = tkinter.Checkbutton(

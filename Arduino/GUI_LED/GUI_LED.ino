@@ -7,8 +7,8 @@ void setup() {
     
     //Setup Serial Port with baud rate of 9600
     Serial.begin(9600);
-    Serial.println("Press H to turn LED ON");
-    Serial.println("Press L to turn LED OFF");
+//    Serial.println("Press H to turn LED ON");
+//    Serial.println("Press L to turn LED OFF");
 }
 
 void loop() {
@@ -18,18 +18,18 @@ void loop() {
     }
     if(incomingByte == 'H'){
         digitalWrite(led, HIGH);
-        Serial.println("LED ON");
+//        Serial.println("LED ON");
     }else if(incomingByte == 'L'){
         digitalWrite(led, LOW);
-        Serial.println("LED OFF");
+//        Serial.println("LED OFF");
     }else if(incomingByte == 'B'){
         digitalWrite(led, HIGH);
         delay(300);
         digitalWrite(led, LOW);
         delay(300);
-        Serial.println("LED BLINK");
+//        Serial.println("LED BLINK");
     }else{
-        Serial.println("invalid!");
+//        Serial.println("invalid!");
     }
       
     
