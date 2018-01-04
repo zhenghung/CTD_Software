@@ -1,6 +1,7 @@
 int led = 13;
 int incomingByte = 0;
 
+
 void setup() {
     pinMode(led, OUTPUT);
     
@@ -14,16 +15,23 @@ void loop() {
     if (Serial.available() > 0) {
         // read the incoming byte:
         incomingByte = Serial.read();
-    
-        if(incomingByte == 'H'){
-            digitalWrite(led, HIGH);
-            Serial.println("LED ON");
-        }else if(incomingByte == 'L'){
-            digitalWrite(led, LOW);
-            Serial.println("LED OFF");
-        }else{
-            Serial.println("invalid!");
-        }
-      
     }
+    if(incomingByte == 'H'){
+        digitalWrite(led, HIGH);
+        Serial.println("LED ON");
+    }else if(incomingByte == 'L'){
+        digitalWrite(led, LOW);
+        Serial.println("LED OFF");
+    }else if(incomingByte == 'B'){
+        digitalWrite(led, HIGH);
+        delay(300);
+        digitalWrite(led, LOW);
+        delay(300);
+        Serial.println("LED BLINK");
+    }else{
+        Serial.println("invalid!");
+    }
+      
+    
+    
 }
