@@ -5,6 +5,8 @@ except ImportError:
     # This will work in Python 3.5
     import tkinter as Tkinter
 
+
+import comWindow as myCOM
 # -----------------------------------------------------------------------------
 # To use matplotlib, the author must use the TkAgg backend, or none of this will
 # work and a long string of inexplicable error messages will ensue.
@@ -15,7 +17,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import serial
 
-
+global ser, cs_config
+cs_config='3U'
 # Define a bold font:
 BOLD = ('Helvetica', '24', 'bold')
 
@@ -61,15 +64,15 @@ row_counter = 0
 
 # Connect to Arduino
 def serialConnect(event=None):
-    global serial, success
-
-    success = True
-    if success:
+    try:
+        ser = serial.Serial('COM3', 9600)
         connect = Tkinter.Label(frame, text="Success", font='Calibri 12 bold', fg='green')
         connect.grid(row=0, column=1)
-    else:
+    except serial.SerialException: 
         connect = Tkinter.Label(frame, text="Failed", font='Calibri 12 bold', fg='Red')
         connect.grid(row=0, column=1)
+
+
 
 
 # Arduino Button
@@ -180,10 +183,7 @@ MakePlot.pack(side='bottom', fill='both')
 # COM Mode
 def com_mode(event=None):
     global cellA, cellB, cellC
-    com_window = Tkinter.Toplevel(root)
-    com_frame = Tkinter.Frame(com_window)
-    com_label = Tkinter.Label(com_window, text="Centre of Mass Mode", font='Helvetica 16 bold')
-    com_label.pack(side='top')
+    myCOM.com_start(cs_config)
 
 
 # COM Button

@@ -35,15 +35,15 @@ tkTop.geometry('300x200')
 frame = tkinter.Frame(tkTop)
 frame.pack(side='top')
 
-serialLabel = tkinter.StringVar()
-serialLabel.set('COM Port: ')
-serLabel = tkinter.Label(frame, textvariable=serialLabel)
-serLabel.grid(row = 0, column = 0)
+# serialLabel = tkinter.StringVar()
+# serialLabel.set('COM Port: ')
+# serLabel = tkinter.Label(frame, textvariable=serialLabel)
+# serLabel.grid(row = 0, column = 0)
 
-ser_entry_str = tkinter.StringVar()
-ser_entry_str.set('COM3')
-ser_entry = tkinter.Entry(frame, width=8, textvariable=ser_entry_str)
-ser_entry.grid(row = 0, column = 1)
+# ser_entry_str = tkinter.StringVar()
+# ser_entry_str.set('COM3')
+# ser_entry = tkinter.Entry(frame, width=8, textvariable=ser_entry_str)
+# ser_entry.grid(row = 0, column = 1)
 
 # varSerButton = tkinter.StringVar()
 # ser_Button = tkinter.Button(
