@@ -8,11 +8,11 @@ def quit():
     global tkTop
     tkTop.destroy()
 
-def setCheckButtonText(varCheckButton):
-    if varCheckButton == 'LED ON':
+def setCheckButtonText(varOption):
+    if varOption == 'LED ON':
         varLabel.set("LED ON")
         ser.write(bytes('H', 'UTF-8'))
-    elif varCheckButton == 'LED Blink':
+    elif varOption == 'LED Blink':
         varLabel.set("LED Blink")
         ser.write(bytes('B', 'UTF-8'))
     else:
@@ -56,14 +56,19 @@ varLabel = tkinter.StringVar()
 tkLabel = tkinter.Label(tkTop, textvariable=varLabel)
 tkLabel.pack()
 
-varCheckButton = tkinter.StringVar()
+optLabel = tkinter.Label(frame, text='Mode: ')
+optLabel.grid(row = 1, column = 0)
+
+varOption = tkinter.StringVar()
+varOption.set('LED OFF')
+tkCheckButton = tkinter.OptionMenu(frame, varOption, 'LED OFF','LED ON','LED Blink', command = setCheckButtonText)
+tkCheckButton.grid(row = 1, column = 1)
+
 # tkCheckButton = tkinter.Checkbutton(
 #     tkTop,
 #     text="Control Arduino LED",
 #     variable=varCheckButton,
 #     command=setCheckButtonText)
-tkCheckButton = tkinter.OptionMenu(tkTop, varCheckButton, 'LED OFF','LED ON','LED Blink', command = setCheckButtonText)
-tkCheckButton.pack()
 
 tkButtonQuit = tkinter.Button(
     tkTop,
