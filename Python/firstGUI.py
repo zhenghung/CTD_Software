@@ -19,8 +19,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import serial
 
-global ser, cs_config
-cs_config='3U'
+global serialConnect, cs_config
+
 # Define a bold font:
 BOLD = ('Helvetica', '24', 'bold')
 
@@ -43,12 +43,6 @@ frame21.pack(side='top')
 
 
 
-
-
-
-
-
-
 # Variables for the calculation, and default values.
 amplitudeA = Tkinter.StringVar()
 amplitudeA.set('1.0')
@@ -66,6 +60,7 @@ row_counter = 0
 
 # Connect to Arduino
 def serialConnect(event=None):
+    global ser
     try:
         ser = serial.Serial('COM3', 9600)
         connect = Tkinter.Label(frame, text="Success", font='Calibri 12 bold', fg='green')
@@ -73,7 +68,6 @@ def serialConnect(event=None):
     except serial.SerialException: 
         connect = Tkinter.Label(frame, text="Failed", font='Calibri 12 bold', fg='Red')
         connect.grid(row=0, column=1)
-
 
 
 
@@ -88,10 +82,10 @@ row_counter+=1
 cs_text = Tkinter.Label(frame, text='CubeSat Config:')
 cs_text.grid(row=row_counter, column=0)
 
-variable = Tkinter.StringVar(root)
-variable.set("3U") # default value
+cs_config = Tkinter.StringVar(root)
+cs_config.set("3U") # default value
 
-w = Tkinter.OptionMenu(frame, variable, "1U", "2U", "3U")
+w = Tkinter.OptionMenu(frame, cs_config, "1U", "2U", "3U")
 w.grid(row = row_counter, column = 1)
 
 
@@ -185,7 +179,7 @@ MakePlot.pack(side='bottom', fill='both')
 # COM Mode
 def com_mode(event=None):
     global cellA, cellB, cellC
-    comWindow.com_start(cs_config)
+    comWindow.com_start(ser, cs_config)
 
 
 # COM Button
@@ -195,7 +189,7 @@ Mode_COM.pack(side='top', fill='both')
 # MOI Mode
 def moi_mode(event=None):
     global timer
-    moiWindow.moi_start(cs_config)
+    moiWindow.moi_start(ser, cs_config)
 
 # MOI Button
 Mode_MOI = Tkinter.Button(root, command = moi_mode, text="Measure Moment of Inertia")
@@ -204,7 +198,7 @@ Mode_MOI.pack(side='top', fill='both')
 # Calibration Mode
 def cal_mode(event=None):
     global cellA, cellB, cellC, timer
-    calWindow.cal_start(cs_config)
+    calWindow.cal_start(ser, cs_config)
 
 # Calibration Button
 Mode_COM = Tkinter.Button(root, command = cal_mode, text="Calibrate Measurements")
