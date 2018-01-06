@@ -9,6 +9,7 @@ global cs_config, ser
 
 def com_start(ser, cs_config):
 	global status_str
+	cs_config = cs_config.get()
 	# Setup Window
 	com_window = tkinter.Tk()
 	com_window.title("COM Mode")
@@ -42,9 +43,9 @@ def com_start(ser, cs_config):
 	cs_label.pack(padx=10)
 
 	#Status Label
-	status_str = tkinter.StringVar()
+	status_str = tkinter.StringVar(com_window)
 	status_str.set('Place CubeSat to begin')
-	status_label = tkinter.Label(com_frame1, textvariable=status_str, justify='left')
+	status_label = tkinter.Label(com_frame1, textvariable=status_str, justify='left', font='i', fg='gray')
 	status_label.pack(pady=10)
 
 	measureButton1 = tkinter.Button(com_frame1,text='Orientation 1 Measure', command=measure1)
@@ -72,5 +73,6 @@ def measure3():
 def finish():
 	status_str.set('Computing Results...')
 
-com_start(1, '3U')
+
+# com_start(1, '3U')
 
