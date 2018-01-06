@@ -20,6 +20,7 @@ BOLD = ('Helvetica', '24', 'bold')
 
 # Create main application window.
 root = tkinter.Tk()
+root.title('CubeSat Testing Device')
 
 # Create a text box explaining the application.
 greeting = tkinter.Label(text="CubeSat Testing Device", font=BOLD)
