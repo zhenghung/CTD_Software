@@ -9,7 +9,8 @@ global cs_config, ser
 
 def moi_start(ser, cs_config):
 	global status_str
-	cs_config = cs_config.get()
+	if ser==0:
+		cs_config = cs_config.get()
 
 	# Setup Window
 	moi_window = Tk()
@@ -46,8 +47,9 @@ def moi_start(ser, cs_config):
 	#Status Label
 	status_str = StringVar(moi_window)
 	status_str.set('Place CubeSat to begin')
-	status_label = Label(moi_frame1, textvariable=status_str, justify='left', font='Arial 10 italic',wraplength=300, fg='gray')
-	status_label.pack(pady=10)
+	status_label = Label(moi_frame1, textvariable=status_str, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
+	status_label.config(height=3, width=30, wraplength=240)
+	status_label.pack(padx=10, pady=10)
 
 	measureButton1 = Button(moi_frame1,text='Orientation 1 Measure', command=measure1)
 	measureButton1.pack(fill=X)
@@ -75,4 +77,4 @@ def finish():
 	status_str.set('Computing Results...')
 
 
-# com_start(1, '3U')
+moi_start(1, '3U')

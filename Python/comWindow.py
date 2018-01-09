@@ -9,7 +9,8 @@ global cs_config, ser
 
 def com_start(ser, cs_config):
 	global status_str
-	cs_config = cs_config.get()
+	if ser==0:
+		cs_config = cs_config.get()
 	# Setup Window
 	com_window = Tk()
 	com_window.title("COM Mode")
@@ -45,8 +46,9 @@ def com_start(ser, cs_config):
 	#Status Label
 	status_str = StringVar(com_window)
 	status_str.set('Place CubeSat to begin')
-	status_label = Label(com_frame1, textvariable=status_str, justify='left', font='i', fg='gray')
-	status_label.pack(pady=10)
+	status_label = Label(com_frame1, textvariable=status_str, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
+	status_label.config(height=3, width=30, wraplength=240)
+	status_label.pack(padx=10, pady=10)
 
 	measureButton1 = Button(com_frame1,text='Orientation 1 Measure', command=measure1)
 	measureButton1.pack(fill=X)
@@ -74,5 +76,5 @@ def finish():
 	status_str.set('Computing Results...')
 
 
-# com_start(1, '3U')
+com_start(1, '3U')
 

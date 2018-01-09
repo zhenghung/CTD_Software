@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import serial
 
 global serialConnect, cs_config, ser
-ser = 1
+ser = 0
 
 # Define a bold font:
 BOLD = ('Helvetica', '24', 'bold')
@@ -87,7 +87,7 @@ w.grid(row = row_counter, column = 1)
 ins_text = Label(frame21, text='1. Place the CubeSat onto the platform with the predefined orientation\n'
                                        '2. Ensure the fixturing is properly clamping the CubeSat\n'
                                        '3. Select the appropriate config and Mode of operation', justify = 'left')
-ins_text.grid(row = 0, column = 0)
+ins_text.grid(row = 0, column = 0, padx=10)
 
 
 
@@ -177,33 +177,28 @@ def com_mode(event=None):
     global cellA, cellB, cellC
     comWindow.com_start(ser, cs_config)
 
-
-# COM Button
-Mode_COM = Button(root, command = com_mode, text="Measure Center of Mass")
-Mode_COM.pack(side='top', fill='both')
-
 # MOI Mode
 def moi_mode(event=None):
     global timer
     moiWindow.moi_start(ser, cs_config)
-
-# MOI Button
-Mode_MOI = Button(root, command = moi_mode, text="Measure Moment of Inertia")
-Mode_MOI.pack(side='top', fill='both')
 
 # Calibration Mode
 def cal_mode(event=None):
     global cellA, cellB, cellC, timer
     calWindow.cal_start(ser, cs_config)
 
+# COM Button
+Mode_COM = Button(root, command = com_mode, text="Measure Center of Mass")
+Mode_COM.pack(side='top', fill='both', padx=5, pady=2)
+
+# MOI Button
+Mode_MOI = Button(root, command = moi_mode, text="Measure Moment of Inertia")
+Mode_MOI.pack(side='top', fill='both', padx=5, pady=2)
+
 # Calibration Button
 Mode_COM = Button(root, command = cal_mode, text="Calibrate Measurements")
-Mode_COM.pack(side='top', fill='both')
+Mode_COM.pack(side='top', fill='both', padx=5, pady=2)
 
-
-
-
-# moiWindow.moi_start(ser, cs_config)
 
 # Allow pressing <Return> to create plot.
 root.bind('<Return>', make_plot)

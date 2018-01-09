@@ -9,6 +9,9 @@ global cs_config, ser
 
 def cal_start(ser, cs_config):
 	global status_str
+	if ser==0:
+		cs_config = cs_config.get()
+
 	# Setup Window
 	cal_window = Tk()
 	cal_window.title("CAL Mode")
@@ -47,4 +50,4 @@ def cal_start(ser, cs_config):
 	# Activate the window.
 	cal_window.mainloop()
 
-cal_start(0, '3U')
+cal_start(1, '3U')
