@@ -8,7 +8,7 @@ import serial
 global cs_config, ser
 
 def cal_start(ser, cs_config):
-	global status_str
+	global status_str, calType_str
 	if ser==0:
 		cs_config = cs_config.get()
 
@@ -24,6 +24,10 @@ def cal_start(ser, cs_config):
 	stsFrame.grid(row=1, column=0, sticky='nw', padx=10)
 	mainUIFrame = Frame(cal_window)
 	mainUIFrame.grid(row=2, column=0, sticky='w', padx=10)
+	calOptionFrame = Frame(mainUIFrame)
+	calOptionFrame.grid(row=0, column=0, sticky='w', padx=10)
+	insFrame = Frame(mainUIFrame)
+	insFrame.grid(row = 0, column = 1, sticky ='w', padx = 10)
 
 	# layout all of the main containers
 	cal_window.grid_rowconfigure(1, weight=1)
@@ -39,15 +43,27 @@ def cal_start(ser, cs_config):
 	status_str = StringVar(cal_window)
 	status_str.set('Place Calibration Block to begin')
 	status_label = Label(stsFrame, textvariable=status_str, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
-	status_label.config(height=3, width=50, wraplength=400)
+	status_label.config(height=3, width=80, wraplength=640)
 	status_label.grid(row=1, column=0, sticky='nw', pady=10)
 
+	# OptionMenu
+	calType_str = StringVar(cal_window)
+	calType_str.set('COM')
+	calTypeLbl = Label(calOptionFrame, text='Calibration Type: ')
+	calTypeLbl.grid(row = 0, column = 0, sticky = 'w')
+	calType = OptionMenu(calOptionFrame, calType_str, "MOI", "COM")
+	calType.grid(row = 0, column = 1)
 	
-	
+	# Instruction Labels
+	insLabel = Label(
+		insFrame, 
+		text='1. Place CubeSat on the plate\n'
+		'2. Select the Calibration type and Begin calibration measurement', justify='left')	
+	insLabel.grid(row = 0, column =3, sticky='w')
 
 
 
 	# Activate the window.
 	cal_window.mainloop()
 
-cal_start(1, '3U')
+cal_start(1, 'COM')

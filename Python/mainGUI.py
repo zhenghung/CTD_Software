@@ -85,8 +85,8 @@ w.grid(row = row_counter, column = 1)
 
 
 ins_text = Label(frame21, text='1. Place the CubeSat onto the platform with the predefined orientation\n'
-                                       '2. Ensure the fixturing is properly clamping the CubeSat\n'
-                                       '3. Select the appropriate config and Mode of operation', justify = 'left')
+                               '2. Ensure the fixturing is properly clamping the CubeSat\n'
+                               '3. Select the appropriate config and Mode of operation', justify = 'left')
 ins_text.grid(row = 0, column = 0, padx=10)
 
 
