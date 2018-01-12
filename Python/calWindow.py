@@ -5,6 +5,16 @@ import matplotlib.pyplot
 from tkinter import *
 import serial
 
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
+import matplotlib.pyplot as plt
+
+
+
 global cs_config, ser
 
 def cal_start(ser, cs_config):
@@ -28,6 +38,8 @@ def cal_start(ser, cs_config):
 	calOptionFrame.grid(row=0, column=0, sticky='w', padx=10)
 	insFrame = Frame(mainUIFrame)
 	insFrame.grid(row = 0, column = 1, sticky ='w', padx = 10)
+	graphFrame = Frame(cal_window)
+	graphFrame.grid(row = 3, column = 0, sticky = 'w', padx =10)
 
 	# layout all of the main containers
 	cal_window.grid_rowconfigure(1, weight=1)
@@ -61,9 +73,37 @@ def cal_start(ser, cs_config):
 		'2. Select the Calibration type and Begin calibration measurement', justify='left')	
 	insLabel.grid(row = 0, column =3, sticky='w')
 
+	plotCube(graphFrame)
 
 
 	# Activate the window.
 	cal_window.mainloop()
+
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+import numpy as np
+from itertools import product, combinations
+
+def plotCube(graphFrame):
+
+
+
+
+	fig = plt.figure()
+	ax = fig.gca(projection='3d')
+	ax.set_aspect("equal")
+
+
+	# draw cube
+	r = [0, 15]
+	for s, e in combinations(np.array(list(product(r, r, r))), 2):
+	    if np.sum(np.abs(s-e)) == r[1]-r[0]:
+	        ax.plot3D(*zip(s, e), color="b")
+
+	canvas = FigureCanvasTkAgg(fig,master=graphFrame)
+	canvas.show()
+	canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
+	ax.mouse_init()
+
 
 cal_start(1, 'COM')
