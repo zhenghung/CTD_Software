@@ -1,56 +1,19 @@
-from tkinter import Tk, Frame, BOTH, Menu, Label, SUNKEN, X, BOTTOM
+from tkinter import *
+from tkinter import ttk
 
-class Application(Frame):
-   def __init__(self, parent):
-      Frame.__init__(self, parent, background = "white")
-      parent.configure(bg = "black")
-      self.pack(fill = BOTH, expand = True, padx = 20, pady = 20)
+root = Tk()
 
-      self.parent = parent
+nb = ttk.Notebook(root) 
+nb.pack(fill='both', expand=1)
+t = Text(nb)
+nb.add(t, text='foo')
+c = Canvas(nb)
+nb.add(c, text='bar')
 
-      # Maximize window
-      self.screenWidth = self.parent.winfo_screenwidth() - 5
-      self.screenHeight = self.parent.winfo_screenheight() - 110
-      self.parent.geometry('%dx%d+%d+%d' % (self.screenWidth, self.screenHeight, 0, 0))
-      self.parent.resizable(0, 0)
+def on_button_3(event):
+    if event.widget.identify(event.x, event.y) == 'label':
+        index = event.widget.index('@%d,%d' % (event.x, event.y))
+        print (event.widget.tab(index, 'text'))
 
-      # Status bar
-      self.statusBar = StatusBar(self.parent)
-      self.statusBar.pack(side = BOTTOM, fill = X)
-
-      # Menu bar
-      menubar = Menu(self.parent)
-      self.parent.config(menu = menubar)
-
-      self.commandMenu = Menu(menubar, tearoff = 0)
-      self.commandMenu.add_command(label = "Rename", command = self.onRename)
-      menubar.add_cascade(label = "Command", menu = self.commandMenu)
-
-      self.helpMenu = Menu(menubar, tearoff = 0)
-      self.helpMenu.add_command(label = "About", command = self.onAbout)
-      menubar.add_cascade(label = "Help", menu = self.helpMenu)
-
-   def onRename(self):
-      pass
-   def onAbout(self):
-      pass
-
-class StatusBar(Frame):
-   def __init__(self, master):
-      Frame.__init__(self, master)
-      self.label = Label(self, bd = 1, relief = SUNKEN, anchor = "w")
-      self.label.pack(fill=X)
-   def set(self, format0, *args):
-      self.label.config(text = format0 % args)
-      self.label.update_idletasks()
-   def clear(self):
-      self.label.config(text="")
-      self.label.update_idletasks()
-
-def main():
-   root = Tk()
-   Application(root)
-   root.mainloop()
-
-if __name__ == '__main__':
-   main()  
+nb.bind('<3>', on_button_3)
+root.mainloop()
