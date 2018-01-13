@@ -39,18 +39,6 @@ frame21.pack(side='top')
 
 
 # Variables for the calculation, and default values.
-amplitudeA = StringVar()
-amplitudeA.set('1.0')
-frequencyA = StringVar()
-frequencyA.set('1.0')
-
-amplitudeB = StringVar()
-amplitudeB.set('1.0')
-frequencyB = StringVar()
-frequencyB.set('1.0')
-
-deltaPhi = StringVar()
-deltaPhi.set('0.0')
 row_counter = 0
 
 # Connect to Arduino
@@ -68,7 +56,7 @@ def serialConnect(event=None):
 
 # Arduino Button
 arduino = Button(frame, command=serialConnect, text="Connect to Arduino")
-arduino.grid(row=row_counter, column=0)
+arduino.grid(row=row_counter, column=0, padx=5)
 
 # Create text boxes and entry boxes for the variables.
 # Use grid geometry manager instead of packing the entries in.
@@ -90,121 +78,37 @@ ins_text = Label(frame21, text='1. Place the CubeSat onto the platform with the 
 ins_text.grid(row = 0, column = 0, padx=10)
 
 
-
-
-#
-# row_counter += 1
-# aa_text = Label(frame, text='Amplitude of 1st wave:')
-# aa_text.grid(row=row_counter, column=0)
-#
-# aa_entry = Entry(frame, width=8, textvariable=amplitudeA)
-# aa_entry.grid(row=row_counter, column=1)
-#
-# row_counter += 1
-# fa_text = Label(frame, text='Frequency of 1st wave:')
-# fa_text.grid(row=row_counter, column=0)
-#
-# fa_entry = Entry(frame, width=8, textvariable=frequencyA)
-# fa_entry.grid(row=row_counter, column=1)
-#
-# row_counter += 1
-# ab_text = Label(frame, text='Amplitude of 2nd wave:')
-# ab_text.grid(row=row_counter, column=0)
-#
-# ab_entry = Entry(frame, width=8, textvariable=amplitudeB)
-# ab_entry.grid(row=row_counter, column=1)
-#
-# row_counter += 1
-# fb_text = Label(frame, text='Frequency of 2nd wave:')
-# fb_text.grid(row=row_counter, column=0)
-#
-# fb_entry = Entry(frame, width=8, textvariable=frequencyB)
-# fb_entry.grid(row=row_counter, column=1)
-#
-# row_counter += 1
-# dp_text = Label(frame, text='Phase Difference:')
-# dp_text.grid(row=row_counter, column=0)
-#
-# dp_entry = Entry(frame, width=8, textvariable=deltaPhi)
-# dp_entry.grid(row=row_counter, column=1)
-
-
-
-
-
-# Define a function to create the desired plot.
-def make_plot(event=None):
-    # Get these variables from outside the function, and update them.
-    global amplitudeA, frequencyA, amplitudeB, frequencyB, deltaPhi
-
-    # Convert StringVar data to numerical data.
-    aa = float(amplitudeA.get())
-    fa = float(frequencyA.get())
-    ab = float(amplitudeB.get())
-    fb = float(frequencyB.get())
-    phi = float(deltaPhi.get())
-
-    # Define the range of the plot.
-    t_min = -10
-    t_max = 10
-    dt = 0.01
-    t = np.arange(t_min, t_max+dt, dt)
-
-    # Create the two waves and find the combined intensity.
-    waveA = aa * np.cos(fa * t)
-    waveB = ab * np.cos(fb * t + phi)
-    intensity = (waveA + waveB)**2
-
-    # Create the plot.
-    plt.figure()
-    plt.plot(t, intensity, lw=3)
-    plt.title('Interference Pattern')
-    plt.xlabel('Time')
-    plt.ylabel('Intensity')
-    plt.show()
-
-
-# Add a button to create the plot.
-MakePlot = Button(frame2, command=make_plot, text="Create Plot")
-MakePlot.pack(side='top')
-MakePlot.config(width=20)
-
-
-
-
-# COM Mode
-def com_mode(event=None):
-    global cellA, cellB, cellC
-    comWindow.com_start(ser, cs_config)
-
-# MOI Mode
-def moi_mode(event=None):
-    global timer
-    moiWindow.moi_start(ser, cs_config)
-
 # Calibration Mode
 def cal_mode(event=None):
     global cellA, cellB, cellC, timer
-    calWindow.cal_start(ser, cs_config)
-
-# COM Button
-Mode_COM = Button(root, command = com_mode, text="Measure Center of Mass")
-Mode_COM.pack(side='top', fill='both', padx=5, pady=2)
-
-# MOI Button
-Mode_MOI = Button(root, command = moi_mode, text="Measure Moment of Inertia")
-Mode_MOI.pack(side='top', fill='both', padx=5, pady=2)
+    calWindow.calMode.cal_start(ser, cs_config)
 
 # Calibration Button
 Mode_COM = Button(root, command = cal_mode, text="Calibrate Measurements")
 Mode_COM.pack(side='top', fill='both', padx=5, pady=2)
 
+from tkinter import ttk
+tabsView = ttk.Notebook(root)
+comFrame = Frame(tabsView)
+moiFrame = Frame(tabsView)
+tabsView.add(comFrame, text='Center of Mass')
+tabsView.add(moiFrame, text='Moment of Inertia')
+tabsView.pack(side='top', fill='both', padx=5, pady=5)
 
-# Allow pressing <Return> to create plot.
-root.bind('<Return>', make_plot)
+comWindow.comMode.com_start(ser, cs_config, comFrame)
+moiWindow.moi_start(ser, cs_config, moiFrame)
+
 
 # Allow pressing <Esc> to close the window.
-root.bind('<Escape>', root.destroy)
+# root.bind('<Escape>', kill)
+
+# def kill(event=None):
+#     root.destroy()
+
+# import time
+# root.after(5000, kill)
 
 # Activate the window.
 root.mainloop()
+
+
