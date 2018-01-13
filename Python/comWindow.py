@@ -7,74 +7,141 @@ import serial
 
 global cs_config, ser
 
-def com_start(ser, cs_config):
-	global status_str
-	if ser==0:
-		cs_config = cs_config.get()
-	# Setup Window
-	com_window = Tk()
-	com_window.title("COM Mode")
-	# com_window.geometry('300x200')
-	com_label = Label(com_window, text="Centre of Mass Mode", font='Helvetica 16 bold')
-	com_label.pack(side='top')
+class comMode():
 
-	# Frame 1
-	com_frame1 = Frame(com_window)
-	com_frame1.pack(side='left')
-	com_frame2 = Frame(com_window)
-	com_frame2.pack(side='right')
-	com_frame3 = Frame(com_window)
-	com_frame3.pack(side='bottom')
+	def com_start(ser, cs_config, com_window):
+		global status_str, result_str
+		if ser==0:
+			cs_config = cs_config.get()
 
-	# CubeSat Mode Label		
-	cs_label = Label(
-		com_frame1, 
-		text='CubeSat Mode: '+cs_config+'\n\n'
-		'1. Place the CubeSat on the plate in orientation 1\n'
-		'2. Begin measurement for orientation 1\n'
-		'3. Wait for measurement to complete\n'
-		'4. Reorientate and fix CubeSat in orientation 2\n'
-		'5. Begin measurement for orientation 2\n'
-		'6. Wait for measurement to complete\n'
-		'7. Reorientate and fix CubeSat in orientation 3\n'
-		'8. Begin measurement for orientation 3\n'
-		'9. Wait for measurement to complete\n'
-		'10. Click finish to obtain final COM\n\n'
-		'Status Message: ',justify='left')
-	cs_label.pack(padx=10)
+		# Setup Window
+		# com_window = Tk()
+		# com_window.title("COM Mode")
+		# com_window.geometry('300x200')
 
-	#Status Label
-	status_str = StringVar(com_window)
-	status_str.set('Place CubeSat to begin')
-	status_label = Label(com_frame1, textvariable=status_str, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
-	status_label.config(height=3, width=30, wraplength=240)
-	status_label.pack(padx=10, pady=10)
+		# Frame Containers
+		titleFrame = Frame(com_window)
+		titleFrame.grid(row=0, column=0)	
+		mainUIFrame = Frame(com_window, borderwidth=3, relief=GROOVE)
+		mainUIFrame.grid(row=1, column=0, sticky='nsew', padx=10)
 
-	measureButton1 = Button(com_frame1,text='Orientation 1 Measure', command=measure1)
-	measureButton1.pack(fill=X)
-	measureButton2 = Button(com_frame1,text='Orientation 2 Measure', command=measure2)
-	measureButton2.pack(fill=X)
-	measureButton3 = Button(com_frame1,text='Orientation 3 Measure', command=measure3)
-	measureButton3.pack(fill=X)
-	finishButton = Button(com_frame1,text='Compute Measurements', command=finish)
-	finishButton.pack(fill=X)
+		# SubFrame Containers
+		controlFrame = Frame(mainUIFrame, borderwidth=0, relief=GROOVE)
+		controlFrame.grid(row=0, column=0, sticky='nsew', padx=10)
+		resultFrame = Frame(mainUIFrame, borderwidth=0, relief=GROOVE)
+		resultFrame.grid(row=0, column=1, sticky='nsew', padx=10)
+
+		# Frames
+		instructionFrame = Frame(controlFrame, borderwidth=3, relief=GROOVE)
+		instructionFrame.grid(row=0, sticky='nsew', padx=10)
+		buttonFrame = Frame(controlFrame, borderwidth=3, relief=GROOVE)
+		buttonFrame.grid(row=1, column=0, sticky='nsew', padx=10)
+		stsFrame = Frame(controlFrame, borderwidth=3, relief=GROOVE)
+		stsFrame.grid(row=2, column=0, sticky='sew', padx=10) 
+		graphFrame = Frame(resultFrame, borderwidth=3, relief=GROOVE)
+		graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
+		printFrame = Frame(resultFrame, borderwidth=3, relief=GROOVE)
+		printFrame.grid(row=1, column=0, sticky='nsew', padx=10)
+
+		com_label = Label(titleFrame, text="Centre of Mass Mode", font='Helvetica 16 bold')
+		com_label.pack(side='top')
 
 
-	# Activate the window.
-	com_window.mainloop()     
+		# Arduino COM Standby button
+		comStand = Button(instructionFrame, text='COM Standby')
+		comStand.pack(padx=10, pady=10, fill=X)	
 
-def measure1():
-	status_str.set('Measuring Orientation 1...')
+		# CubeSat Mode Label		
+		cs_label = Label(
+			instructionFrame, 
+			text='Instructions: \n\n'
+			'1. Place the CubeSat on the plate in orientation 1\n'
+			'2. Begin measurement for orientation 1\n'
+			'3. Wait for measurement to complete\n'
+			'4. Reorientate and fix CubeSat in orientation 2\n'
+			'5. Begin measurement for orientation 2\n'
+			'6. Wait for measurement to complete\n'
+			'7. Reorientate and fix CubeSat in orientation 3\n'
+			'8. Begin measurement for orientation 3\n'
+			'9. Wait for measurement to complete\n'
+			'10. Click finish to obtain final COM'
+			,justify='left')
+		cs_label.pack(padx=10, pady=10)
 
-def measure2():
-	status_str.set('Measuring Orientation 2...')
+		#Status Label
+		stslbl = Label(stsFrame, text='Status Message')
+		stslbl.grid(row=0, padx=10, pady=5, sticky='nw')
+		status_str = StringVar(com_window)
+		status_str.set('Place CubeSat to begin')
+		status_label = Label(stsFrame, textvariable=status_str, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
+		status_label.config(height=18, width=40, wraplength=320)
+		status_label.grid(row=1, padx=10, pady=5)
 
-def measure3():
-	status_str.set('Measuring Orientation 3...')
+		measureButton1 = Button(buttonFrame,text='Orientation 1 Measure', command=comMode.measure1)
+		measureButton1.pack(fill=X)
+		measureButton2 = Button(buttonFrame,text='Orientation 2 Measure', command=comMode.measure2)
+		measureButton2.pack(fill=X)
 
-def finish():
-	status_str.set('Computing Results...')
+		finishButton = Button(buttonFrame,text='Compute Measurements', command=comMode.finish)
+		finishButton.pack(fill=X)
+
+		# Plot Center of Mass on 3D axes
+		comMode.graphPlot(graphFrame)
+
+		# Results Textbox
+		resultlbl = Label(printFrame, text='Results')
+		resultlbl.grid(row=0, padx=10, pady=5, sticky='nw')
+		result_str = StringVar(com_window)
+		result_str.set('Results to be printed HERE...')
+		result_label = Label(printFrame, textvariable=result_str, justify='left', anchor=NW, font='Arial 10', fg='black', bd=2, relief='sunken')
+		result_label.config(height=10, width=80, wraplength=640)
+		result_label.grid(row=1, padx=10, pady=5)
 
 
-com_start(1, '3U')
+		# Activate the window.
+		if ser==1:
+			com_window.mainloop()     
+
+	def measure1():
+		status_str.set('Measuring Orientation 1...')
+
+	def measure2():
+		status_str.set('Measuring Orientation 2...')
+
+	def finish():
+		status_str.set('Computing Results...')
+
+	def graphPlot(graphFrame):
+		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+		from matplotlib.figure import Figure
+		from mpl_toolkits.mplot3d import Axes3D
+		import matplotlib.pyplot as plt
+		import numpy as np
+		from itertools import product, combinations
+
+		fig = plt.figure()
+		ax = fig.gca(projection='3d')
+		ax.set_aspect("equal")
+
+		cubeWidth = 15;
+
+		# draw cube
+		r = [0, cubeWidth]
+		for s, e in combinations(np.array(list(product(r, r, r))), 2):
+		    if np.sum(np.abs(s-e)) == r[1]-r[0]:
+		        ax.plot3D(*zip(s, e), color="b")
+
+	    # draw a point
+		ax.scatter([cubeWidth/2], [cubeWidth/2], [cubeWidth/2], color="r", s=3)
+
+		canvas = FigureCanvasTkAgg(fig, master=graphFrame)
+		canvas.show()
+		canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
+
+		ax.mouse_init()
+
+
+
+# comWindow = Tk()
+# comMode.com_start(1, '3U', comWindow)
 
