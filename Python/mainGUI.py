@@ -58,9 +58,6 @@ def serialConnect(event=None):
 arduino = Button(frame, command=serialConnect, text="Connect to Arduino")
 arduino.grid(row=row_counter, column=0, padx=5)
 
-# Create text boxes and entry boxes for the variables.
-# Use grid geometry manager instead of packing the entries in.
-
 row_counter+=1
 cs_text = Label(frame, text='CubeSat Config:')
 cs_text.grid(row=row_counter, column=0)
@@ -87,6 +84,7 @@ def cal_mode(event=None):
 Mode_COM = Button(root, command = cal_mode, text="Calibrate Measurements")
 Mode_COM.pack(side='top', fill='both', padx=5, pady=2)
 
+# Notebook TabsView
 from tkinter import ttk
 tabsView = ttk.Notebook(root)
 comFrame = Frame(tabsView)
@@ -95,18 +93,16 @@ tabsView.add(comFrame, text='Center of Mass')
 tabsView.add(moiFrame, text='Moment of Inertia')
 tabsView.pack(side='top', fill='both', padx=5, pady=5)
 
+# Setup COM and MOI Mode
 comWindow.comMode.com_start(ser, cs_config, comFrame)
 moiWindow.moi_start(ser, cs_config, moiFrame)
 
 
 # Allow pressing <Esc> to close the window.
-# root.bind('<Escape>', kill)
+root.bind('<Escape>', lambda e: root.quit())
 
-# def kill(event=None):
-#     root.destroy()
-
-# import time
-# root.after(5000, kill)
+# The window is not resizable. 
+root.resizable(0,0) 
 
 # Activate the window.
 root.mainloop()
