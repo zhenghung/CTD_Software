@@ -49,22 +49,24 @@ class comMode():
 
 		# Arduino COM Standby button
 		comStand = Button(instructionFrame, text='COM Standby')
-		comStand.pack(padx=10, pady=10, fill=X)	
+		comStand.pack(padx=10, pady=2, fill=X)	
 
-		# CubeSat Mode Label		
+		# Reset Button
+		resetButton = Button(instructionFrame, text='Reset')
+		resetButton.pack(padx=10, pady=2, fill='both')
+
+		# COM Instructions		
 		cs_label = Label(
 			instructionFrame, 
 			text='Instructions: \n\n'
 			'1. Place the CubeSat on the plate in orientation 1\n'
-			'2. Begin measurement for orientation 1\n'
-			'3. Wait for measurement to complete\n'
-			'4. Reorientate and fix CubeSat in orientation 2\n'
-			'5. Begin measurement for orientation 2\n'
-			'6. Wait for measurement to complete\n'
-			'7. Reorientate and fix CubeSat in orientation 3\n'
-			'8. Begin measurement for orientation 3\n'
-			'9. Wait for measurement to complete\n'
-			'10. Click finish to obtain final COM'
+			'2. Switch to Arduino COM Standby Mode\n'
+			'3. Begin measurement for orientation 1\n'
+			'4. Wait for measurement to complete\n'
+			'5. Reorientate and fix CubeSat in orientation 2\n'
+			'6. Begin measurement for orientation 2\n'
+			'7. Wait for measurement to complete\n'
+			'8. Compute Measurements to obtain final COM\n\n'
 			,justify='left')
 		cs_label.pack(padx=10, pady=10)
 
