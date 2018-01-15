@@ -4,7 +4,7 @@ import calWindow
 import moiWindow
 import comWindow
 
-global serialConnect, cs_config, ser, globalstatus
+global serialConnect, cs_config, ser, mainStatus
 ser = 0
 BOLD = ('Helvetica', '24', 'bold')
 
@@ -81,9 +81,9 @@ ins_text.grid(row = 0, column = 0, padx=5, sticky='nsew')
 #Status Label
 stslbl = Label(stsFrame, text='Status Message')
 stslbl.grid(row=0, padx=10, pady=5, sticky='nw')
-globalstatus = StringVar(root)
-globalstatus.set('Place CubeSat to begin')
-status_label = Label(stsFrame, textvariable=globalstatus, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
+mainStatus = StringVar(root)
+mainStatus.set('Place CubeSat to begin')
+status_label = Label(stsFrame, textvariable=mainStatus, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
 status_label.config(height = 2, width=50, wraplength=320)
 status_label.grid(row=1, padx=10, pady=5, sticky='nsew')   
 
@@ -99,8 +99,8 @@ tabsView.add(moiFrame, text='Moment of Inertia')
 tabsView.pack(side='top', fill='both', padx=0, pady=5)
 
 # Setup COM and MOI Mode
-comWindow.comMode.com_start(ser, cs_config, comFrame)
-moiWindow.moiMode.moi_start(ser, cs_config, moiFrame)
+comWindow.comMode.com_start(ser, cs_config, mainStatus, comFrame)
+moiWindow.moiMode.moi_start(ser, cs_config, mainStatus, moiFrame)
 
 
 # Allow pressing <Esc> to close the window.
