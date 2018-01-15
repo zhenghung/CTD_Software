@@ -3,7 +3,9 @@ matplotlib.use('TkAgg')
 import numpy
 import matplotlib.pyplot
 from tkinter import *
+from tkinter import messagebox
 import serial
+# import mainGUI
 
 global cs_config, ser
 
@@ -48,11 +50,11 @@ class comMode():
 
 
 		# Arduino COM Standby button
-		comStand = Button(instructionFrame, text='COM Standby')
+		comStand = Button(instructionFrame, text='COM Standby', command=comMode.standby)
 		comStand.pack(padx=10, pady=2, fill=X)	
 
 		# Reset Button
-		resetButton = Button(instructionFrame, text='Reset')
+		resetButton = Button(instructionFrame, text='Reset', command=comMode.reset)
 		resetButton.pack(padx=10, pady=2, fill='both')
 
 		# COM Instructions		
@@ -102,7 +104,16 @@ class comMode():
 
 		# Activate the window.
 		if ser==1:
-			com_window.mainloop()     
+			com_window.mainloop() 
+
+	def standby():
+		status_str.set('Arduino: COM Standby Mode\nAwaiting further instructions')
+		# mainGUI.globalstatus.set('COM Mode')
+
+	def reset():
+	    result = messagebox.askyesno("Reset?", "Are You Sure?\nAll data will be lost", icon='warning')
+	    if result == True:
+	        status_str.set('Reset Success\nPlace CubeSat to begin...')
 
 	def measure1():
 		status_str.set('Measuring Orientation 1...')
