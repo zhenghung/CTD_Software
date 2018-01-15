@@ -5,16 +5,17 @@ import matplotlib.pyplot
 from tkinter import *
 from tkinter import messagebox
 import serial
-# import mainGUI
+from References import PlotCuboid
 
 global cs_config, ser
 
 class comMode():
 
-	def com_start(ser, cs_config, com_window):
-		global status_str, result_str
+	def com_start(ser, cs_config, parentStatus, com_window):
+		global status_str, result_str, mainStatus
 		if ser==0:
 			cs_config = cs_config.get()
+		mainStatus = parentStatus
 
 		# Setup Window
 		# com_window = Tk()
@@ -91,6 +92,8 @@ class comMode():
 
 		# Plot Center of Mass on 3D axes
 		comMode.graphPlot(graphFrame)
+		# comMode.plot_cuboid(graphFrame, [0, 0, 0], (30 ,10 , 10))
+
 
 		# Results Textbox
 		resultlbl = Label(printFrame, text='Results')
@@ -107,8 +110,8 @@ class comMode():
 			com_window.mainloop() 
 
 	def standby():
+		mainStatus.set('COM State')			
 		status_str.set('Arduino: COM Standby Mode\nAwaiting further instructions')
-		# mainGUI.globalstatus.set('COM Mode')
 
 	def reset():
 	    result = messagebox.askyesno("Reset?", "Are You Sure?\nAll data will be lost", icon='warning')
@@ -116,6 +119,7 @@ class comMode():
 	        status_str.set('Reset Success\nPlace CubeSat to begin...')
 
 	def measure1():
+		mainStatus.set('COM Measure State')	
 		status_str.set('Measuring Orientation 1...')
 
 	def measure2():
@@ -131,7 +135,8 @@ class comMode():
 		import matplotlib.pyplot as plt
 		import numpy as np
 		from itertools import product, combinations
-
+		import matplotlib.backends.backend_tkagg as tkagg
+		
 		fig = plt.figure()
 		ax = fig.gca(projection='3d')
 		ax.set_aspect("equal")
@@ -151,7 +156,71 @@ class comMode():
 		canvas.show()
 		canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
 
+		tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
 		ax.mouse_init()
+
+	def plot_cuboid(graphFrame, center, size):
+		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+		from matplotlib.figure import Figure
+		from mpl_toolkits.mplot3d import Axes3D
+		import matplotlib.pyplot as plt
+		import numpy as np
+		from itertools import product, combinations
+
+		ox, oy, oz = center
+		l, w, h = size
+
+		x = np.linspace(ox-l/2,ox+l/2,num=10)
+		y = np.linspace(oy-w/2,oy+w/2,num=10)
+		z = np.linspace(oz-h/2,oz+h/2,num=10)
+		x1, z1 = np.meshgrid(x, z)
+		y11 = np.ones_like(x1)*(oy-w/2)
+		y12 = np.ones_like(x1)*(oy+w/2)
+		x2, y2 = np.meshgrid(x, y)
+		z21 = np.ones_like(x2)*(oz-h/2)
+		z22 = np.ones_like(x2)*(oz+h/2)
+		y3, z3 = np.meshgrid(y, z)
+		x31 = np.ones_like(y3)*(ox-l/2)
+		x32 = np.ones_like(y3)*(ox+l/2)
+
+		from mpl_toolkits.mplot3d import Axes3D
+		import matplotlib.pyplot as plt
+		fig = plt.figure()
+		ax = fig.gca(projection='3d')
+		ax.set_aspect("equal")
+		ax.autoscale(enable=False,axis='both')  #you will need this line to change the Z-axis
+		ax.set_xbound(0-200, 0+200)
+		ax.set_ybound(0-200, 0+200)
+		ax.set_zbound(0-200, 0+200)
+		# outside surface
+		ax.plot_wireframe(x1, y11, z1, color='b', rstride=1, cstride=1, alpha=0.6)
+		# inside surface
+		ax.plot_wireframe(x1, y12, z1, color='b', rstride=1, cstride=1, alpha=0.6)
+		# bottom surface
+		ax.plot_wireframe(x2, y2, z21, color='b', rstride=1, cstride=1, alpha=0.6)
+		# upper surface
+		ax.plot_wireframe(x2, y2, z22, color='b', rstride=1, cstride=1, alpha=0.6)
+		# left surface
+		ax.plot_wireframe(x31, y3, z3, color='b', rstride=1, cstride=1, alpha=0.6)
+		# right surface
+		ax.plot_wireframe(x32, y3, z3, color='b', rstride=1, cstride=1, alpha=0.6)
+		ax.set_xlabel('X')
+		ax.set_xlim(0, 30)
+		ax.set_ylabel('Y')
+		ax.set_ylim(0, 30)
+		ax.set_zlabel('Z')
+		ax.set_zlim(0, 30)
+
+		canvas = FigureCanvasTkAgg(fig, master=graphFrame)
+		canvas.show()
+		canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
+
+		import matplotlib.backends.backend_tkagg as tkagg
+		# canvas is your canvas, and root is your parent (Frame, TopLevel, Tk instance etc.)
+		tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
+		ax.mouse_init()
+		# plt.show()
+
 
 
 
