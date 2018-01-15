@@ -11,11 +11,11 @@ global cs_config, ser
 
 class moiMode():
 
-	def moi_start(ser, cs_config, moi_window):
-		global status_str
+	def moi_start(ser, cs_config, parentStatus, moi_window):
+		global status_str, result_str, mainStatus
 		if ser==0:
 			cs_config = cs_config.get()
-
+		mainStatus = parentStatus
 		# Setup Window
 		# moi_window = Tk()
 		# moi_window.title("MOI Mode")
@@ -48,10 +48,9 @@ class moiMode():
 		moi_label = Label(titleFrame, text="Moment of Inertia Mode", font='Helvetica 16 bold')
 		moi_label.pack(side='top')
 
-
 		# Arduino MOI Standby button
-		comStand = Button(instructionFrame, text='MOI Standby', command=moiMode.standby)
-		comStand.pack(padx=10, pady=2, fill=X)	
+		moiStand = Button(instructionFrame, text='MOI Standby', command=moiMode.standby)
+		moiStand.pack(padx=10, pady=2, fill=X)	
 
 		# Reset Button
 		resetButton = Button(instructionFrame, text='Reset', command=moiMode.reset)
@@ -83,6 +82,7 @@ class moiMode():
 		status_label.config(height=16, width=40, wraplength=320)
 		status_label.grid(row=1, padx=10, pady=5)	
 
+		# Buttons Layout
 		measureButton1 = Button(buttonFrame,text='Orientation 1 Measure', command=moiMode.measure1)
 		measureButton1.pack(fill=X)
 		measureButton2 = Button(buttonFrame,text='Orientation 2 Measure', command=moiMode.measure2)
@@ -92,6 +92,7 @@ class moiMode():
 		finishButton = Button(buttonFrame,text='Compute Measurements', command=moiMode.finish)
 		finishButton.pack(fill=X)
 
+		# Plot Graph
 		moiMode.plot(graphFrame)
 
 		# Results Textbox
@@ -109,8 +110,8 @@ class moiMode():
 			moi_window.mainloop()     
 
 	def standby():
+		mainStatus.set('State MOI')
 		status_str.set('Arduino: MOI Standby Mode\nAwaiting further instructions')
-		# mainGUI.globalstatus.set('MOI Mode')
 
 	def reset():
 	    result = messagebox.askyesno("Reset?", "Are You Sure?\nAll data will be lost", icon='warning')
@@ -118,6 +119,7 @@ class moiMode():
 	        status_str.set('Reset Success\nPlace CubeSat to begin...')
 		
 	def measure1():
+		mainStatus.set('State MOI Measure 1')
 		status_str.set('Rotate plate to begin measurement 1')
 
 	def measure2():
@@ -131,6 +133,7 @@ class moiMode():
 
 	def plot(graphFrame):
 		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+		import matplotlib.backends.backend_tkagg as tkagg
 		from matplotlib.figure import Figure
 
 		fig = Figure()
@@ -141,7 +144,9 @@ class moiMode():
 		canvas.show()
 		canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
 
-
+		# canvas is your canvas, and root is your parent (Frame, TopLevel, Tk instance etc.)
+		tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
+		# ax.mouse_init()
 
 
 # moi_window = Tk()
