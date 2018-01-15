@@ -4,6 +4,7 @@ import numpy
 import matplotlib.pyplot
 from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
 import serial
 from References import PlotCuboid
 
@@ -51,11 +52,11 @@ class comMode():
 
 
 		# Arduino COM Standby button
-		comStand = Button(instructionFrame, text='COM Standby', command=comMode.standby)
+		comStand = ttk.Button(instructionFrame, text='COM Standby', command=comMode.standby)
 		comStand.pack(padx=10, pady=2, fill=X)	
 
 		# Reset Button
-		resetButton = Button(instructionFrame, text='Reset', command=comMode.reset)
+		resetButton = ttk.Button(instructionFrame, text='Reset', command=comMode.reset)
 		resetButton.pack(padx=10, pady=2, fill='both')
 
 		# COM Instructions		
@@ -82,12 +83,12 @@ class comMode():
 		status_label.config(height=18, width=40, wraplength=320)
 		status_label.grid(row=1, padx=10, pady=5)
 
-		measureButton1 = Button(buttonFrame,text='Orientation 1 Measure', command=comMode.measure1)
+		measureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=comMode.measure1)
 		measureButton1.pack(fill=X)
-		measureButton2 = Button(buttonFrame,text='Orientation 2 Measure', command=comMode.measure2)
+		measureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=comMode.measure2)
 		measureButton2.pack(fill=X)
 
-		finishButton = Button(buttonFrame,text='Compute Measurements', command=comMode.finish)
+		finishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=comMode.finish)
 		finishButton.pack(fill=X)
 
 		# Plot Center of Mass on 3D axes

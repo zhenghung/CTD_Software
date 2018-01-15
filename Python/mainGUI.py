@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 import serial
 import calWindow
 import moiWindow
@@ -53,7 +54,7 @@ titleLabel = Label(titleFrame, text="CubeSat Testing Device", font=BOLD)
 titleLabel.grid(row=0)
 
 # Arduino Button
-arduino = Button(controlFrame, command=serialConnect, text="Connect to Arduino")
+arduino = ttk.Button(controlFrame, command=serialConnect, text="Connect to Arduino")
 arduino.grid(row=0, column=0, padx=5, sticky='nsew')
 
 # CubeSat Config selection
@@ -61,11 +62,11 @@ cs_text = Label(controlFrame, text='CubeSat Config:')
 cs_text.grid(row=1, column=0)
 cs_config = StringVar(root)
 cs_config.set("3U") # default value
-w = OptionMenu(controlFrame, cs_config, "1U", "2U", "3U")
+w = ttk.OptionMenu(controlFrame, cs_config, '', "1U", "2U", "3U")
 w.grid(row = 1, column = 1, sticky='nsew')
 
 # Calibration Button
-calButton = Button(controlFrame, command = cal_mode, text="Calibrate Measurements")
+calButton = ttk.Button(controlFrame, command = cal_mode, text="Calibrate Measurements")
 calButton.grid(row=2, columnspan=2, sticky='nsew')
 
 # Instructions Label
@@ -80,12 +81,12 @@ ins_text.grid(row = 0, column = 0, padx=5, sticky='nsew')
 
 #Status Label
 stslbl = Label(stsFrame, text='Status Message')
-stslbl.grid(row=0, padx=10, pady=5, sticky='nw')
+stslbl.grid(row=0, padx=10, pady=0, sticky='nw')
 mainStatus = StringVar(root)
 mainStatus.set('Place CubeSat to begin')
 status_label = Label(stsFrame, textvariable=mainStatus, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
-status_label.config(height = 2, width=50, wraplength=320)
-status_label.grid(row=1, padx=10, pady=5, sticky='nsew')   
+status_label.config(height = 3, width=50, wraplength=320)
+status_label.grid(row=1, padx=10, pady=0, sticky='nsew')   
 
 
 

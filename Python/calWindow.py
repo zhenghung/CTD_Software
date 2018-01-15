@@ -3,6 +3,7 @@ matplotlib.use('TkAgg')
 import numpy
 import matplotlib.pyplot
 from tkinter import *
+from tkinter import ttk
 import serial
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -80,7 +81,7 @@ class calMode():
 		calType_str.set('COM')
 		calTypeLbl = Label(calOptionFrame, text='Calibration Type: ')
 		calTypeLbl.grid(row = 0, column = 0, sticky = 'w')
-		calType = OptionMenu(calOptionFrame, calType_str, "MOI", "COM")
+		calType = ttk.OptionMenu(calOptionFrame, calType_str, "","MOI", "COM")
 		calType.grid(row = 0, column = 1)
 		
 		# Instruction Labels
@@ -103,7 +104,7 @@ class calMode():
 
 
 
-		saveButton = Button(cal_window, text='Save and Quit', command=calMode.save)
+		saveButton = ttk.Button(cal_window, text='Save and Quit', command=calMode.save)
 		saveButton.grid(row=5, column=0, sticky='e', padx=10, pady=10)
 
 

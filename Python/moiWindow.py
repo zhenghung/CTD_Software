@@ -5,6 +5,7 @@ import matplotlib.pyplot
 from tkinter import *
 import serial
 from tkinter import messagebox
+from tkinter import ttk
 # import mainGUI
 
 global cs_config, ser
@@ -49,11 +50,11 @@ class moiMode():
 		moi_label.pack(side='top')
 
 		# Arduino MOI Standby button
-		moiStand = Button(instructionFrame, text='MOI Standby', command=moiMode.standby)
+		moiStand = ttk.Button(instructionFrame, text='MOI Standby', command=moiMode.standby)
 		moiStand.pack(padx=10, pady=2, fill=X)	
 
 		# Reset Button
-		resetButton = Button(instructionFrame, text='Reset', command=moiMode.reset)
+		resetButton = ttk.Button(instructionFrame, text='Reset', command=moiMode.reset)
 		resetButton.pack(padx=10, pady=2, fill='both')
 
 		# MOI Mode Instruction	
@@ -83,13 +84,13 @@ class moiMode():
 		status_label.grid(row=1, padx=10, pady=5)	
 
 		# Buttons Layout
-		measureButton1 = Button(buttonFrame,text='Orientation 1 Measure', command=moiMode.measure1)
+		measureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=moiMode.measure1)
 		measureButton1.pack(fill=X)
-		measureButton2 = Button(buttonFrame,text='Orientation 2 Measure', command=moiMode.measure2)
+		measureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=moiMode.measure2)
 		measureButton2.pack(fill=X)
-		measureButton3 = Button(buttonFrame,text='Orientation 3 Measure', command=moiMode.measure3)
+		measureButton3 = ttk.Button(buttonFrame,text='Orientation 3 Measure', command=moiMode.measure3)
 		measureButton3.pack(fill=X)
-		finishButton = Button(buttonFrame,text='Compute Measurements', command=moiMode.finish)
+		finishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=moiMode.finish)
 		finishButton.pack(fill=X)
 
 		# Plot Graph
