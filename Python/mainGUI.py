@@ -1,9 +1,11 @@
 from tkinter import *
 from tkinter import ttk
+import time
 import serial
 import calWindow
 import moiWindow
 import comWindow
+
 
 global serialConnect, cs_config, ser, mainStatus
 ser = 0
@@ -18,6 +20,9 @@ def serialConnect(event=None):
         ser = serial.Serial('COM3', 9600)
         connect = Label(controlFrame, text="Success", font='Calibri 12 bold', fg='green')
         connect.grid(row=0, column=1)
+        ser.close()
+        ser.open()
+        time.sleep(2)  #at least wait for 2s 
     except serial.SerialException: 
         connect = Label(controlFrame, text="Failed", font='Calibri 12 bold', fg='Red')
         connect.grid(row=0, column=1)
@@ -81,13 +86,13 @@ ins_text.config(width=60)
 ins_text.grid(row = 0, column = 0, padx=5, sticky='nsew')
 
 #Status Label
-stslbl = Label(stsFrame, text='Status Message')
-stslbl.grid(row=0, padx=10, pady=0, sticky='nw')
+stslbl = Label(stsFrame, text='Arduino State')
+stslbl.grid(row=0, padx=10, pady=(5,0), sticky='nw')
 mainStatus = StringVar(root)
-mainStatus.set('Place CubeSat to begin')
+mainStatus.set('Center of Mass Mode')
 status_label = Label(stsFrame, textvariable=mainStatus, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
-status_label.config(height = 3, width=50, wraplength=320)
-status_label.grid(row=1, padx=10, pady=0, sticky='nsew')
+status_label.config(height = 2, width=50, wraplength=320)
+status_label.grid(row=1, padx=10, pady=(0,5), sticky='nsew')
 
 # Notebook TabsView
 from tkinter import ttk
