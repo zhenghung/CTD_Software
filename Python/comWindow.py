@@ -8,14 +8,17 @@ from tkinter import ttk
 import serial
 from References import PlotCuboid
 
-global cs_config, ser
+# global cs_config, ser
 
 class comMode():
 
-	def com_start(ser, cs_config, parentStatus, com_window):
-		global status_str, result_str, mainStatus
-		if ser==0:
-			cs_config = cs_config.get()
+	def com_start(serial, parent_cs_config, parentStatus, com_window):
+		global cs_config, ser, status_str, result_str, mainStatus, graphFrame
+		if serial==0:
+			cs_config = parent_cs_config.get()
+		else:
+			cs_config = parent_cs_config
+
 		mainStatus = parentStatus
 
 		# Setup Window
@@ -92,8 +95,8 @@ class comMode():
 		finishButton.pack(fill=X)
 
 		# Plot Center of Mass on 3D axes
-		comMode.graphPlot(graphFrame)
-		# comMode.plot_cuboid(graphFrame, [0, 0, 0], (30 ,10 , 10))
+		comMode.drawGraphs(graphFrame)
+
 
 
 		# Results Textbox
@@ -107,7 +110,7 @@ class comMode():
 
 
 		# Activate the window.
-		if ser==1:
+		if serial==1:
 			com_window.mainloop() 
 
 	def standby():
@@ -129,6 +132,12 @@ class comMode():
 	def finish():
 		status_str.set('Computing Results...')
 
+	def drawGraphs(graphFrame):
+		if cs_config=='3U':
+			comMode.plot_cuboid(graphFrame, [0, 0, 0], (30 ,10 , 10))
+		elif cs_config=='1U':
+			comMode.graphPlot(graphFrame)
+
 	def graphPlot(graphFrame):
 		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 		from matplotlib.figure import Figure
@@ -137,7 +146,8 @@ class comMode():
 		import numpy as np
 		from itertools import product, combinations
 		import matplotlib.backends.backend_tkagg as tkagg
-		
+
+		global canvas
 		fig = plt.figure()
 		ax = fig.gca(projection='3d')
 		ax.set_aspect("equal")
@@ -168,6 +178,7 @@ class comMode():
 		import numpy as np
 		from itertools import product, combinations
 
+		global canvas
 		ox, oy, oz = center
 		l, w, h = size
 
@@ -194,23 +205,28 @@ class comMode():
 		ax.set_ybound(0-200, 0+200)
 		ax.set_zbound(0-200, 0+200)
 		# outside surface
-		ax.plot_wireframe(x1, y11, z1, color='b', rstride=1, cstride=1, alpha=0.6)
+		ax.plot_wireframe(x1, y11, z1, color='b', rstride=10, cstride=10, alpha=0.6)
 		# inside surface
-		ax.plot_wireframe(x1, y12, z1, color='b', rstride=1, cstride=1, alpha=0.6)
+		ax.plot_wireframe(x1, y12, z1, color='b', rstride=10, cstride=10, alpha=0.6)
 		# bottom surface
-		ax.plot_wireframe(x2, y2, z21, color='b', rstride=1, cstride=1, alpha=0.6)
+		ax.plot_wireframe(x2, y2, z21, color='b', rstride=10, cstride=10, alpha=0.6)
 		# upper surface
-		ax.plot_wireframe(x2, y2, z22, color='b', rstride=1, cstride=1, alpha=0.6)
+		ax.plot_wireframe(x2, y2, z22, color='b', rstride=10, cstride=10, alpha=0.6)
 		# left surface
-		ax.plot_wireframe(x31, y3, z3, color='b', rstride=1, cstride=1, alpha=0.6)
+		ax.plot_wireframe(x31, y3, z3, color='b', rstride=10, cstride=10, alpha=0.6)
 		# right surface
-		ax.plot_wireframe(x32, y3, z3, color='b', rstride=1, cstride=1, alpha=0.6)
+		ax.plot_wireframe(x32, y3, z3, color='b', rstride=10, cstride=10, alpha=0.6)
 		ax.set_xlabel('X')
-		ax.set_xlim(0, 30)
+		ax.set_xlim(-10, 10)
 		ax.set_ylabel('Y')
-		ax.set_ylim(0, 30)
+		ax.set_ylim(-10, 10)
 		ax.set_zlabel('Z')
-		ax.set_zlim(0, 30)
+		ax.set_zlim(-10, 10)
+
+
+	    # draw a point
+		ax.scatter([0], [0], [0], color="r", s=3)
+
 
 		canvas = FigureCanvasTkAgg(fig, master=graphFrame)
 		canvas.show()
