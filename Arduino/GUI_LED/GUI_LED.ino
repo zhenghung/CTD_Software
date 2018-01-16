@@ -1,6 +1,6 @@
 int led = 13;
 int incomingByte = 0;
-
+int count = 0;
 
 void setup() {
     pinMode(led, OUTPUT);
@@ -27,7 +27,8 @@ void loop() {
         delay(300);
         digitalWrite(led, LOW);
         delay(300);
-//        Serial.println("LED BLINK");
+        count++;
+        Serial.println(count);
     }else{
 //        Serial.println("invalid!");
     }
