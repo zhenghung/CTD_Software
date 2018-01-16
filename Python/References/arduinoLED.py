@@ -15,12 +15,19 @@ def setCheckButtonText(varOption):
     elif varOption == 'LED Blink':
         varLabel.set("LED Blink")
         ser.write(bytes('B', 'UTF-8'))
+        p=True
+        while p==True:
+            for line in ser.read():
+                print(str(line))
+                p=False
+                break
+        p=True
     else:
         varLabel.set("LED OFF")
         ser.write(bytes('L', 'UTF-8'))
 
 # def setSerial():
-ser = serial.Serial('COM3', 9600)
+ser = serial.Serial('COM3', baudrate=9600, timeout=None)
 print("Reset Arduino")
 time.sleep(3)
 ser.write(bytes('L', 'UTF-8'))
