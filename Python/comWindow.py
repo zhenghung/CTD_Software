@@ -20,7 +20,7 @@ class comMode():
 			cs_config = parent_cs_config
 
 		mainStatus = parentStatus
-
+		ser = serial
 		# Setup Window
 		# com_window = Tk()
 		# com_window.title("COM Mode")
@@ -108,7 +108,6 @@ class comMode():
 		result_label.config(height=10, width=80, wraplength=640)
 		result_label.grid(row=1, padx=10, pady=5)
 
-
 		# Activate the window.
 		if serial==1:
 			com_window.mainloop() 
@@ -121,6 +120,7 @@ class comMode():
 	    result = messagebox.askyesno("Reset?", "Are You Sure?\nAll data will be lost", icon='warning')
 	    if result == True:
 	        status_str.set('Reset Success\nPlace CubeSat to begin...')
+
 
 	def measure1():
 		mainStatus.set('COM Measure State')	
