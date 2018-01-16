@@ -8,7 +8,7 @@ import comWindow
 global serialConnect, cs_config, ser, mainStatus
 ser = 0
 BOLD = ('Helvetica', '24', 'bold')
-
+default_cs = '3U'
 # Button Functions
 # --------------------------
 # Connect to Arduino
@@ -57,11 +57,12 @@ titleLabel.grid(row=0)
 arduino = ttk.Button(controlFrame, command=serialConnect, text="Connect to Arduino")
 arduino.grid(row=0, column=0, padx=5, sticky='nsew')
 
+
 # CubeSat Config selection
 cs_text = Label(controlFrame, text='CubeSat Config:')
 cs_text.grid(row=1, column=0)
 cs_config = StringVar(root)
-cs_config.set("3U") # default value
+cs_config.set(default_cs)
 w = ttk.OptionMenu(controlFrame, cs_config, '', "1U", "2U", "3U")
 w.grid(row = 1, column = 1, sticky='nsew')
 
@@ -86,9 +87,7 @@ mainStatus = StringVar(root)
 mainStatus.set('Place CubeSat to begin')
 status_label = Label(stsFrame, textvariable=mainStatus, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
 status_label.config(height = 3, width=50, wraplength=320)
-status_label.grid(row=1, padx=10, pady=0, sticky='nsew')   
-
-
+status_label.grid(row=1, padx=10, pady=0, sticky='nsew')
 
 # Notebook TabsView
 from tkinter import ttk
@@ -102,7 +101,6 @@ tabsView.pack(side='top', fill='both', padx=0, pady=5)
 # Setup COM and MOI Mode
 comWindow.comMode.com_start(ser, cs_config, mainStatus, comFrame)
 moiWindow.moiMode.moi_start(ser, cs_config, mainStatus, moiFrame)
-
 
 # Allow pressing <Esc> to close the window.
 root.bind('<Escape>', lambda e: root.quit())
