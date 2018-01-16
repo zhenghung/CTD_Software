@@ -87,8 +87,10 @@ class calMode():
 		# Instruction Labels
 		insLabel = Label(
 			insFrame, 
-			text='1. Place CubeSat on the plate\n'
-			'2. Select the Calibration type and Begin calibration measurement', justify='left')	
+			text=
+			'1. Place CubeSat on the plate\n'
+			'2. Select the Calibration type and Begin calibration measurement'
+			, justify='left')	
 		insLabel.grid(row = 0, column = 3, sticky='w')
 
 
@@ -105,8 +107,10 @@ class calMode():
 
 
 		saveButton = ttk.Button(cal_window, text='Save and Quit', command=calMode.save)
-		saveButton.grid(row=5, column=0, sticky='e', padx=10, pady=10)
+		saveButton.grid(row=5, column=0, sticky='nse', padx=10, pady=10)
 
+		# The window is not resizable. 
+		cal_window.resizable(0,0) 
 
 		# Activate the window.
 		cal_window.mainloop()
