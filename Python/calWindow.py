@@ -74,7 +74,6 @@ class calMode():
 		status_label = Label(stsFrame, textvariable=status_str, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
 		status_label.config(height=3, width=100, wraplength=640)
 		status_label.grid(row=1, column=0, sticky='nw', pady=10, padx=5)
-		print(stsFrame.winfo_width())
 
 		# OptionMenu
 		calType_str = StringVar(cal_window)
