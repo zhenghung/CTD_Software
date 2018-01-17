@@ -1,4 +1,7 @@
 __pycache__
+*.pyc
+
 build
 setup.py
-*.pyc
+
+test.py
