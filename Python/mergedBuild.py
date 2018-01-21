@@ -32,7 +32,7 @@ class arduino(object):
 	        ardStatus.set('Arduino Connection attempt failed, ensure USB port is connected and try again')
 
 	def waitingOnSerial(serialOutput):
-		timeout = time.time() + 3
+		timeout = time.time() + 3	# 3 seconds timeout
 		while True:
 			bytesToRead=ser.inWaiting()
 			if(bytesToRead>0):
@@ -158,7 +158,6 @@ import matplotlib
 matplotlib.use('TkAgg')
 import numpy
 import matplotlib.pyplot
-from References import PlotCuboid
 
 class comMode():
 
@@ -401,10 +400,6 @@ class moiMode():
 
 	def moi_start(moi_window):
 		global moi_status_str, moi_result_str
-		# Setup Window
-		# moi_window = Tk()
-		# moi_window.title("MOI Mode")
-		# moi_window.geometry('300x200')
 
 		# Frame Containers
 		titleFrame = Frame(moi_window)
