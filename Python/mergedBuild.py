@@ -134,14 +134,7 @@ class mergedBuild(object):
 		comMode.com_start(comFrame)
 		moiMode.moi_start(moiFrame)
 
-		# Allow pressing <Esc> to close the window.
-		root.bind('<Escape>', lambda e: root.quit())
-
-		# The window is not resizable. 
-		root.resizable(0,0) 
-
-		# print ('height:',root.winfo_height())
-		# print ('width:',root.winfo_width())
+		# Setup Buttons, disable most for STARTUP MODE
 		allButtons = (
 			[arduinoButton, 
 			comStand, 
@@ -157,11 +150,21 @@ class mergedBuild(object):
 			moiFinishButton])
 
 		buttonInteraction.buttonRefresh([])
-		# buttonInteraction.buttonInteraction.startup(allbuttons)
+
+
+		# Allow pressing <Esc> to close the window.
+		root.bind('<Escape>', lambda e: root.quit())
+		root.protocol("WM_DELETE_WINDOW", lambda: root.quit())	# Quitting Window Exits Program
+
+		# The window is not resizable. 
+		root.resizable(0,0) 
+		# print ('height:',root.winfo_height())
+		# print ('width:',root.winfo_width())
+
 		# Activate the window.
 		root.mainloop()
 
-
+		
 
 
 """
