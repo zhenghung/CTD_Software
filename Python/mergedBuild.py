@@ -4,9 +4,6 @@ from tkinter import ttk
 import time
 import serial
 import os
-# import calWindow
-# from moiWindow import moiMode
-# from comWindow import comMode
 
 ser = 0
 BOLD = ('Helvetica', '24', 'bold')
@@ -25,6 +22,10 @@ class arduino(object):
 	        	ardStatus.set('Arduino Connected')
 	        ser.close()
 	        ser.open()
+
+	        comStand.config(state='normal')
+	        moiStand.config(state='normal')
+
 	        time.sleep(2)  #at least wait for 2s 
 	    except serial.SerialException: 
 	        connect = Label(controlFrame, text="Failed", font='Calibri 12 bold', fg='Red')
@@ -57,93 +58,108 @@ class arduino(object):
 
 
 class mergedBuild(object):
-    def  __init__(self):
-        from tkinter import ttk
-        global cs_config, ardStatus
-        # Create main application window.
-        root = Tk()
-        root.title('CubeSat Testing Device')
+	def  __init__(self):
+		from tkinter import ttk
+		global cs_config, ardStatus, allButtons
+		# Create main application window.
+		root = Tk()
+		root.title('CubeSat Testing Device')
 
-        # Frame Containers
-        titleFrame = Frame(root)
-        titleFrame.grid(row=0)
-        mainUIFrame = Frame(root, borderwidth=3, relief=GROOVE)
-        mainUIFrame.grid(row=1, column=0, sticky='nsew', padx=10)
-        tabFrame = Frame(root)
-        tabFrame.grid(row=2)
+		# Frame Containers
+		titleFrame = Frame(root)
+		titleFrame.grid(row=0)
+		mainUIFrame = Frame(root, borderwidth=3, relief=GROOVE)
+		mainUIFrame.grid(row=1, column=0, sticky='nsew', padx=10)
+		tabFrame = Frame(root)
+		tabFrame.grid(row=2)
 
-        # SubFrame Containers
-        controlFrame = Frame(mainUIFrame, borderwidth=3, relief=GROOVE)
-        controlFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-        instructionFrame = Frame(mainUIFrame, borderwidth=3, relief=GROOVE)
-        instructionFrame.grid(row=0, column=1, sticky='nsew', padx=(10, 10))
-        stsFrame = Frame(mainUIFrame, borderwidth=3, relief=GROOVE)
-        stsFrame.grid(row=0, column=2, sticky='nsew', padx=10)
+		# SubFrame Containers
+		controlFrame = Frame(mainUIFrame, borderwidth=3, relief=GROOVE)
+		controlFrame.grid(row=0, column=0, sticky='nsew', padx=10)
+		instructionFrame = Frame(mainUIFrame, borderwidth=3, relief=GROOVE)
+		instructionFrame.grid(row=0, column=1, sticky='nsew', padx=(10, 10))
+		stsFrame = Frame(mainUIFrame, borderwidth=3, relief=GROOVE)
+		stsFrame.grid(row=0, column=2, sticky='nsew', padx=10)
 
-        # Title
-        titleLabel = Label(titleFrame, text="CubeSat Testing Device", font=BOLD)
-        titleLabel.grid(row=0)
+		# Title
+		titleLabel = Label(titleFrame, text="CubeSat Testing Device", font=BOLD)
+		titleLabel.grid(row=0)
 
-        # Arduino Button
-        arduinoButton = ttk.Button(controlFrame, command=lambda: arduino.serialConnect(controlFrame) ,text="Connect to Arduino")
-        arduinoButton.grid(row=0, column=0, padx=5, sticky='nsew')
+		# Arduino Button
+		arduinoButton = ttk.Button(controlFrame, command=lambda: arduino.serialConnect(controlFrame) ,text="Connect to Arduino")
+		arduinoButton.grid(row=0, column=0, padx=5, sticky='nsew')
 
 
-        # CubeSat Config selection
-        cs_text = Label(controlFrame, text='CubeSat Config:')
-        cs_text.grid(row=1, column=0)
-        cs_config = StringVar(root)
-        cs_config.set(default_cs)
-        w = ttk.OptionMenu(controlFrame, cs_config, '', "1U", "2U", "3U")
-        w.grid(row = 1, column = 1, sticky='nsew')
+		# CubeSat Config selection
+		cs_text = Label(controlFrame, text='CubeSat Config:')
+		cs_text.grid(row=1, column=0)
+		cs_config = StringVar(root)
+		cs_config.set(default_cs)
+		w = ttk.OptionMenu(controlFrame, cs_config, '', "1U", "2U", "3U")
+		w.grid(row = 1, column = 1, sticky='nsew')
 
-        # Calibration Button
-        calButton = ttk.Button(controlFrame, command = calMode, text="Calibrate Measurements")
-        calButton.grid(row=2, columnspan=2, sticky='nsew')
+		# Calibration Button
+		calButton = ttk.Button(controlFrame, command = calMode, text="Calibrate Measurements")
+		calButton.grid(row=2, columnspan=2, sticky='nsew')
 
-        # Instructions Label
-        ins_text = Label(instructionFrame, text=
-            '1. Place the CubeSat onto the platform with the predefined orientation\n'
-            '2. Ensure the fixturing is properly clamping the CubeSat\n'
-            '3. Select the appropriate config and Mode of operation\n'
-            '4. Calibrate Measurements with the specified block for first time measurements'
-            , justify = 'left')
-        ins_text.config(width=60)
-        ins_text.grid(row = 0, column = 0, padx=5, sticky='nsew')
+		# Instructions Label
+		ins_text = Label(instructionFrame, text=
+		    '1. Place the CubeSat onto the platform with the predefined orientation\n'
+		    '2. Ensure the fixturing is properly clamping the CubeSat\n'
+		    '3. Select the appropriate config and Mode of operation\n'
+		    '4. Calibrate Measurements with the specified block for first time measurements'
+		    , justify = 'left')
+		ins_text.config(width=60)
+		ins_text.grid(row = 0, column = 0, padx=5, sticky='nsew')
 
-        #Status Label
-        stslbl = Label(stsFrame, text='Arduino State')
-        stslbl.grid(row=0, padx=10, pady=(5,0), sticky='nw')
-        ardStatus = StringVar(root)
-        ardStatus.set('Arduino not connected')
-        status_label = Label(stsFrame, textvariable=ardStatus, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
-        status_label.config(height = 2, width=50, wraplength=320)
-        status_label.grid(row=1, padx=10, pady=(0,5), sticky='nsew')
+		#Status Label
+		stslbl = Label(stsFrame, text='Arduino State')
+		stslbl.grid(row=0, padx=10, pady=(5,0), sticky='nw')
+		ardStatus = StringVar(root)
+		ardStatus.set('Arduino not connected')
+		status_label = Label(stsFrame, textvariable=ardStatus, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
+		status_label.config(height = 2, width=50, wraplength=320)
+		status_label.grid(row=1, padx=10, pady=(0,5), sticky='nsew')
 
-        # Notebook TabsView
-        from tkinter import ttk
-        tabsView = ttk.Notebook(tabFrame)
-        comFrame = Frame(tabsView)
-        moiFrame = Frame(tabsView)
-        tabsView.add(comFrame, text='Center of Mass')
-        tabsView.add(moiFrame, text='Moment of Inertia')
-        tabsView.pack(side='top', fill='both', padx=0, pady=5)
+		# Notebook TabsView
+		from tkinter import ttk
+		tabsView = ttk.Notebook(tabFrame)
+		comFrame = Frame(tabsView)
+		moiFrame = Frame(tabsView)
+		tabsView.add(comFrame, text='Center of Mass')
+		tabsView.add(moiFrame, text='Moment of Inertia')
+		tabsView.pack(side='top', fill='both', padx=0, pady=5)
 
-        # Setup COM and MOI Mode
-        comMode.com_start(comFrame)
-        moiMode.moi_start(moiFrame)
+		# Setup COM and MOI Mode
+		comMode.com_start(comFrame)
+		moiMode.moi_start(moiFrame)
 
-        # Allow pressing <Esc> to close the window.
-        root.bind('<Escape>', lambda e: root.quit())
+		# Allow pressing <Esc> to close the window.
+		root.bind('<Escape>', lambda e: root.quit())
 
-        # The window is not resizable. 
-        root.resizable(0,0) 
+		# The window is not resizable. 
+		root.resizable(0,0) 
 
-        # print ('height:',root.winfo_height())
-        # print ('width:',root.winfo_width())
+		# print ('height:',root.winfo_height())
+		# print ('width:',root.winfo_width())
+		allButtons = (
+			[arduinoButton, 
+			comStand, 
+			comResetButton, 
+			comMeasureButton1, 
+			comMeasureButton2, 
+			comFinishButton, 
+			moiStand, 
+			moiResetButton, 
+			moiMeasureButton1, 
+			moiMeasureButton2, 
+			moiMeasureButton3, 
+			moiFinishButton])
 
-        # Activate the window.
-        root.mainloop()
+		buttonInteraction.buttonRefresh([])
+		# buttonInteraction.buttonInteraction.startup(allbuttons)
+		# Activate the window.
+		root.mainloop()
 
 
 
@@ -163,6 +179,7 @@ class comMode():
 
 	def com_start(com_window):
 		global com_status_str, com_result_str
+		global comStand, comResetButton, comMeasureButton1, comMeasureButton2, comFinishButton
 		# Frame Containers
 		titleFrame = Frame(com_window)
 		titleFrame.grid(row=0, column=0)	
@@ -196,8 +213,8 @@ class comMode():
 		comStand.pack(padx=10, pady=2, fill=X)	
 
 		# Reset Button
-		resetButton = ttk.Button(instructionFrame, text='Reset', command=comMode.reset)
-		resetButton.pack(padx=10, pady=2, fill='both')
+		comResetButton = ttk.Button(instructionFrame, text='Reset', command=comMode.reset)
+		comResetButton.pack(padx=10, pady=2, fill='both')
 
 		# COM Instructions		
 		cs_label = Label(
@@ -223,13 +240,13 @@ class comMode():
 		status_label.config(height=18, width=40, wraplength=320)
 		status_label.grid(row=1, padx=10, pady=5)
 
-		measureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=comMode.measure1)
-		measureButton1.pack(fill=X)
-		measureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=comMode.measure2)
-		measureButton2.pack(fill=X)
+		comMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=comMode.measure1)
+		comMeasureButton1.pack(fill=X)
+		comMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=comMode.measure2)
+		comMeasureButton2.pack(fill=X)
 
-		finishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=lambda: comMode.finish(graphFrame))
-		finishButton.pack(fill=X)
+		comFinishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=lambda: comMode.finish(graphFrame, resultFrame))
+		comFinishButton.pack(fill=X)
 
 		# Plot Center of Mass on 3D axes
 		comMode.drawGraphs(graphFrame)
@@ -252,6 +269,8 @@ class comMode():
 			ardStatus.set('COM Standby Mode')			
 			com_status_str.set('Arduino: COM Standby Mode\nAwaiting further instructions')
 
+			buttonInteraction.buttonRefresh([comMeasureButton1, moiStand])
+
 	def reset():
 		result = messagebox.askyesno("Reset?", "Are You Sure?\nAll data will be lost", icon='warning')
 		if result == True:
@@ -259,6 +278,8 @@ class comMode():
 			if(arduino.waitingOnSerial('RESET')):
 				ardStatus.set('COM Standby Mode')
 				com_status_str.set('Reset Success\nPlace CubeSat to begin...')
+
+				buttonInteraction.buttonRefresh([comMeasureButton1, moiStand])
 		else:
 			ardStatus.set('TIMEOUT')
 
@@ -268,19 +289,29 @@ class comMode():
 		if(arduino.waitingOnSerial('BEGIN_COM1')):
 			ardStatus.set('COM Measure 1 State')	
 			com_status_str.set('Measuring Orientation 1...')
-		
+			
+			buttonInteraction.buttonRefresh([comResetButton, comMeasureButton2])
 
 	def measure2():
 		arduino.serialPrint('E')
 		if(arduino.waitingOnSerial('BEGIN_COM2')):
 			ardStatus.set('COM Measure 2 State')	
 			com_status_str.set('Measuring Orientation 2...')
+			
+			buttonInteraction.buttonRefresh([comResetButton, comFinishButton])
 
-	def finish(graphFrame):
+	def finish(graphFrame, resultFrame):
 		arduino.serialPrint('R')
 		if(arduino.waitingOnSerial('COM_DONE')):
 			ardStatus.set('COM Standby Mode')			
 			com_status_str.set('Computing Results...\n')
+			graphFrame.destroy()
+			graphFrame = Frame(resultFrame, borderwidth=3, relief=GROOVE)
+			graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
+			comMode.plot_cuboid(graphFrame, [0, 0, 0], (30 ,10 , 10), 10 ,0 ,0 )
+
+			buttonInteraction.buttonRefresh([comResetButton, moiStand])
+			
 			
 
 	def drawGraphs(graphFrame):
@@ -378,7 +409,6 @@ class comMode():
 	    # draw a point
 		com_point = ax.scatter(comx, comy, comz, color="r", s=3)
 
-
 		canvas = FigureCanvasTkAgg(fig, master=graphFrame)
 		canvas.show()
 		canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
@@ -387,7 +417,6 @@ class comMode():
 		# canvas is your canvas, and root is your parent (Frame, TopLevel, Tk instance etc.)
 		tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
 		ax.mouse_init()
-		# plt.show()
 
 
 """
@@ -400,7 +429,7 @@ class moiMode():
 
 	def moi_start(moi_window):
 		global moi_status_str, moi_result_str
-
+		global moiStand, moiResetButton, moiMeasureButton1, moiMeasureButton2, moiMeasureButton3, moiFinishButton
 		# Frame Containers
 		titleFrame = Frame(moi_window)
 		titleFrame.grid(row=0, column=0)	
@@ -433,8 +462,8 @@ class moiMode():
 		moiStand.pack(padx=10, pady=2, fill=X)	
 
 		# Reset Button
-		resetButton = ttk.Button(instructionFrame, text='Reset', command=moiMode.reset)
-		resetButton.pack(padx=10, pady=2, fill='both')
+		moiResetButton = ttk.Button(instructionFrame, text='Reset', command=moiMode.reset)
+		moiResetButton.pack(padx=10, pady=2, fill='both')
 
 		# MOI Mode Instruction	
 		cs_label = Label(
@@ -463,14 +492,14 @@ class moiMode():
 		status_label.grid(row=1, padx=10, pady=5)	
 
 		# Buttons Layout
-		measureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=moiMode.measure1)
-		measureButton1.pack(fill=X)
-		measureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=moiMode.measure2)
-		measureButton2.pack(fill=X)
-		measureButton3 = ttk.Button(buttonFrame,text='Orientation 3 Measure', command=moiMode.measure3)
-		measureButton3.pack(fill=X)
-		finishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=moiMode.finish)
-		finishButton.pack(fill=X)
+		moiMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=moiMode.measure1)
+		moiMeasureButton1.pack(fill=X)
+		moiMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=moiMode.measure2)
+		moiMeasureButton2.pack(fill=X)
+		moiMeasureButton3 = ttk.Button(buttonFrame,text='Orientation 3 Measure', command=moiMode.measure3)
+		moiMeasureButton3.pack(fill=X)
+		moiFinishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=moiMode.finish)
+		moiFinishButton.pack(fill=X)
 
 		# Plot Graph
 		moiMode.plot(graphFrame)
@@ -485,15 +514,13 @@ class moiMode():
 		result_label.grid(row=1, padx=10, pady=5)
 
 
-		# Activate the window.
-		if ser==1:
-			moi_window.mainloop()     
-
 	def standby():
 		arduino.serialPrint('A')
 		if(arduino.waitingOnSerial('CHGMOI')):
 			ardStatus.set('MOI Standby Mode')
 			moi_status_str.set('Arduino: MOI Standby Mode\nAwaiting further instructions')
+
+			buttonInteraction.buttonRefresh([moiMeasureButton1, comStand])
 
 
 	def reset():
@@ -504,6 +531,9 @@ class moiMode():
 				ardStatus.set('MOI Standby Mode')
 				moi_status_str.set('Rotate plate to begin measurement 1')
 				moi_status_str.set('Reset Success\nPlace CubeSat to begin...')
+
+				buttonInteraction.buttonRefresh([moiMeasureButton1, comStand])
+
 		else:
 			ardStatus.set('TIMEOUT')
 
@@ -514,11 +544,15 @@ class moiMode():
 			ardStatus.set('MOI Measure 1 State')
 			moi_status_str.set('Rotate plate to begin measurement 1')
 
+			buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton2])
+
 	def measure2():
 		arduino.serialPrint('D')
 		if(arduino.waitingOnSerial('BEGIN_MOI2')):
 			ardStatus.set('MOI Measure 2 State')
 			moi_status_str.set('Rotate plate to begin measurement 2')
+
+			buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton3])
 
 	def measure3():
 		arduino.serialPrint('F')
@@ -526,11 +560,15 @@ class moiMode():
 			ardStatus.set('MOI Measure 3 State')
 			moi_status_str.set('Rotate plate to begin measurement 3')
 
+			buttonInteraction.buttonRefresh([moiResetButton, moiFinishButton])
+
 	def finish():
 		arduino.serialPrint('G')
 		if(arduino.waitingOnSerial('MOI_DONE')):
 			ardStatus.set('MOI Standby Mode')
 			moi_status_str.set('Computing Results...')
+
+			buttonInteraction.buttonRefresh([moiResetButton, comStand])
 		
 
 	def plot(graphFrame):
@@ -549,6 +587,32 @@ class moiMode():
 		# canvas is your canvas, and root is your parent (Frame, TopLevel, Tk instance etc.)
 		tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
 
+"""
+=========================
+Buttons ENABLING AND DISABLING
+=========================
+allButtons
+---------
+ 0: 'connectArduino'
+ 1: 'comStandby'
+ 2: 'com_reset'
+ 3: 'com_m1'
+ 4: 'com_m2'
+ 5: 'com_done'
+ 6: 'moi_standby'
+ 7: 'moi_reset'
+ 8: 'moi_m1'
+ 9: 'moi_m2'
+10: 'moi_m3'
+11: 'moi_done'
+"""
+class buttonInteraction():
+	def buttonRefresh(buttonsToEnable):
+		for i in range(1, 12): 
+			allButtons[i].config(state=DISABLED)
+
+		for button in buttonsToEnable:
+			button.config(state='normal')
 
 """
 ==========================================================================================================================================================
