@@ -1,6 +1,4 @@
-from tkinter import *
-from tkinter import messagebox
-from tkinter import ttk
+from tkinter import Tk, Button, Label, Frame, StringVar, messagebox, ttk
 import time
 import serial
 import os
@@ -12,25 +10,27 @@ default_cs = '3U'
 # --------------------------
 class arduino(object):
 	# Connect to Arduino
-	def serialConnect(controlFrame):
-	    global ser
-	    try:
-	        ser = serial.Serial('COM3', 9600)
-	        connect = Label(controlFrame, text="Success", font='Calibri 12 bold', fg='green')
-	        connect.grid(row=0, column=1)
-	        if(arduino.waitingOnSerial('STARTUP')):
-	        	ardStatus.set('Arduino Connected')
-	        ser.close()
-	        ser.open()
+	def serialConnect(controlFrame, connect):
+		global ser
+		try:
+			ser = serial.Serial('COM3', 9600)
+			connect.destroy()
+			connect = Label(controlFrame, text="Success", font='Calibri 12 bold', fg='green', width=7)
+			connect.grid(row=0, column=1)
+			if(arduino.waitingOnSerial('STARTUP')):
+				ardStatus.set('Arduino Connected')
+			ser.close()
+			ser.open()
 
-	        comStand.config(state='normal')
-	        moiStand.config(state='normal')
+			comStand.config(state='normal')
+			moiStand.config(state='normal')
 
-	        time.sleep(2)  #at least wait for 2s 
-	    except serial.SerialException: 
-	        connect = Label(controlFrame, text="Failed", font='Calibri 12 bold', fg='Red')
-	        connect.grid(row=0, column=1)	
-	        ardStatus.set('Arduino Connection attempt failed, ensure USB port is connected and try again')
+			time.sleep(2)  #at least wait for 2s 
+		except serial.SerialException: 
+			connect.destroy()
+			connect = Label(controlFrame, text="Failed", font='Calibri 12 bold', fg='Red', width=7)
+			connect.grid(row=0, column=1)	
+			ardStatus.set('Arduino Connection attempt failed, ensure USB port is connected and try again')
 
 	def waitingOnSerial(serialOutput):
 		timeout = time.time() + 3	# 3 seconds timeout
@@ -68,17 +68,17 @@ class mergedBuild(object):
 		# Frame Containers
 		titleFrame = Frame(root)
 		titleFrame.grid(row=0)
-		mainUIFrame = Frame(root, borderwidth=3, relief=GROOVE)
+		mainUIFrame = Frame(root, borderwidth=3, relief='groove')
 		mainUIFrame.grid(row=1, column=0, sticky='nsew', padx=10)
 		tabFrame = Frame(root)
 		tabFrame.grid(row=2)
 
 		# SubFrame Containers
-		controlFrame = Frame(mainUIFrame, borderwidth=3, relief=GROOVE)
+		controlFrame = Frame(mainUIFrame, borderwidth=3, relief='groove')
 		controlFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		instructionFrame = Frame(mainUIFrame, borderwidth=3, relief=GROOVE)
+		instructionFrame = Frame(mainUIFrame, borderwidth=3, relief='groove')
 		instructionFrame.grid(row=0, column=1, sticky='nsew', padx=(10, 10))
-		stsFrame = Frame(mainUIFrame, borderwidth=3, relief=GROOVE)
+		stsFrame = Frame(mainUIFrame, borderwidth=3, relief='groove')
 		stsFrame.grid(row=0, column=2, sticky='nsew', padx=10)
 
 		# Title
@@ -86,7 +86,9 @@ class mergedBuild(object):
 		titleLabel.grid(row=0)
 
 		# Arduino Button
-		arduinoButton = ttk.Button(controlFrame, command=lambda: arduino.serialConnect(controlFrame) ,text="Connect to Arduino")
+		connect = Label(controlFrame, text="", font='Calibri 12 bold', fg='green',width=7)
+		connect.grid(row=0, column=1)
+		arduinoButton = ttk.Button(controlFrame, command=lambda: arduino.serialConnect(controlFrame, connect) ,text="Connect to Arduino")
 		arduinoButton.grid(row=0, column=0, padx=5, sticky='nsew')
 
 
@@ -108,8 +110,7 @@ class mergedBuild(object):
 		    '2. Ensure the fixturing is properly clamping the CubeSat\n'
 		    '3. Select the appropriate config and Mode of operation\n'
 		    '4. Calibrate Measurements with the specified block for first time measurements'
-		    , justify = 'left')
-		ins_text.config(width=60)
+		    , justify = 'left', width=60)
 		ins_text.grid(row = 0, column = 0, padx=5, sticky='nsew')
 
 		#Status Label
@@ -117,7 +118,7 @@ class mergedBuild(object):
 		stslbl.grid(row=0, padx=10, pady=(5,0), sticky='nw')
 		ardStatus = StringVar(root)
 		ardStatus.set('Arduino not connected')
-		status_label = Label(stsFrame, textvariable=ardStatus, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
+		status_label = Label(stsFrame, textvariable=ardStatus, justify='left', anchor='nw', font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
 		status_label.config(height = 2, width=50, wraplength=320)
 		status_label.grid(row=1, padx=10, pady=(0,5), sticky='nsew')
 
@@ -186,25 +187,25 @@ class comMode():
 		# Frame Containers
 		titleFrame = Frame(com_window)
 		titleFrame.grid(row=0, column=0)	
-		mainUIFrame = Frame(com_window, borderwidth=3, relief=GROOVE)
+		mainUIFrame = Frame(com_window, borderwidth=3, relief='groove')
 		mainUIFrame.grid(row=1, column=0, sticky='nsew', padx=10)
 
 		# SubFrame Containers
-		controlFrame = Frame(mainUIFrame, borderwidth=0, relief=GROOVE)
+		controlFrame = Frame(mainUIFrame, borderwidth=0, relief='groove')
 		controlFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		resultFrame = Frame(mainUIFrame, borderwidth=0, relief=GROOVE)
+		resultFrame = Frame(mainUIFrame, borderwidth=0, relief='groove')
 		resultFrame.grid(row=0, column=1, sticky='nsew', padx=10)
 
 		# Frames
-		instructionFrame = Frame(controlFrame, borderwidth=3, relief=GROOVE)
+		instructionFrame = Frame(controlFrame, borderwidth=3, relief='groove')
 		instructionFrame.grid(row=0, sticky='nsew', padx=10)
-		buttonFrame = Frame(controlFrame, borderwidth=3, relief=GROOVE)
+		buttonFrame = Frame(controlFrame, borderwidth=3, relief='groove')
 		buttonFrame.grid(row=1, column=0, sticky='nsew', padx=10)
-		stsFrame = Frame(controlFrame, borderwidth=3, relief=GROOVE)
+		stsFrame = Frame(controlFrame, borderwidth=3, relief='groove')
 		stsFrame.grid(row=2, column=0, sticky='sew', padx=10) 
-		graphFrame = Frame(resultFrame, borderwidth=3, relief=GROOVE)
+		graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
 		graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		printFrame = Frame(resultFrame, borderwidth=3, relief=GROOVE)
+		printFrame = Frame(resultFrame, borderwidth=3, relief='groove')
 		printFrame.grid(row=1, column=0, sticky='nsew', padx=10)
 
 		com_label = Label(titleFrame, text="Centre of Mass Mode", font='Helvetica 16 bold')
@@ -213,7 +214,7 @@ class comMode():
 
 		# Arduino COM Standby button
 		comStand = ttk.Button(instructionFrame, text='COM Standby', command=comMode.standby)
-		comStand.pack(padx=10, pady=2, fill=X)	
+		comStand.pack(padx=10, pady=2, fill='both')	
 
 		# Reset Button
 		comResetButton = ttk.Button(instructionFrame, text='Reset', command=comMode.reset)
@@ -239,20 +240,20 @@ class comMode():
 		stslbl.grid(row=0, padx=10, pady=5, sticky='nw')
 		com_status_str = StringVar(com_window)
 		com_status_str.set('Place CubeSat to begin')
-		status_label = Label(stsFrame, textvariable=com_status_str, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
+		status_label = Label(stsFrame, textvariable=com_status_str, justify='left', anchor='nw', font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
 		status_label.config(height=18, width=40, wraplength=320)
 		status_label.grid(row=1, padx=10, pady=5)
 
 		comMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=comMode.measure1)
-		comMeasureButton1.pack(fill=X)
+		comMeasureButton1.pack(fill='both')
 		comMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=comMode.measure2)
-		comMeasureButton2.pack(fill=X)
+		comMeasureButton2.pack(fill='both')
 
 		comFinishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=lambda: comMode.finish(graphFrame, resultFrame))
-		comFinishButton.pack(fill=X)
+		comFinishButton.pack(fill='both')
 
 		# Plot Center of Mass on 3D axes
-		comMode.drawGraphs(graphFrame)
+		comMode.drawGraphs(graphFrame, [0,0,0])
 
 
 
@@ -261,7 +262,7 @@ class comMode():
 		resultlbl.grid(row=0, padx=10, pady=5, sticky='nw')
 		com_result_str = StringVar(com_window)
 		com_result_str.set('Results to be printed HERE...')
-		result_label = Label(printFrame, textvariable=com_result_str, justify='left', anchor=NW, font='Arial 10', fg='black', bd=2, relief='sunken')
+		result_label = Label(printFrame, textvariable=com_result_str, justify='left', anchor='nw', font='Arial 10', fg='black', bd=2, relief='sunken')
 		result_label.config(height=10, width=80, wraplength=640)
 		result_label.grid(row=1, padx=10, pady=5)
 
@@ -308,22 +309,23 @@ class comMode():
 		if(arduino.waitingOnSerial('COM_DONE')):
 			ardStatus.set('COM Standby Mode')			
 			com_status_str.set('Computing Results...\n')
+
 			graphFrame.destroy()
-			graphFrame = Frame(resultFrame, borderwidth=3, relief=GROOVE)
+			graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
 			graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-			comMode.plot_cuboid(graphFrame, [0, 0, 0], (30 ,10 , 10), 10 ,0 ,0 )
+			comMode.drawGraphs(graphFrame, [10,0,0])
 
 			buttonInteraction.buttonRefresh([comResetButton, moiStand])
 			
 			
 
-	def drawGraphs(graphFrame):
+	def drawGraphs(graphFrame, com):
 		if cs_config.get()=='3U':
-			comMode.plot_cuboid(graphFrame, [0, 0, 0], (30 ,10 , 10), 0 ,0 ,0 )
+			comMode.plot_cuboid(graphFrame, [0, 0, 0], (30 ,10 , 10), com[0], com[1], com[2])
 		elif cs_config.get()=='1U':
-			comMode.graphPlot(graphFrame)
+			comMode.plotCube(graphFrame)
 
-	def graphPlot(graphFrame):
+	def plotCube(graphFrame):
 		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 		from matplotlib.figure import Figure
 		from mpl_toolkits.mplot3d import Axes3D
@@ -436,25 +438,25 @@ class moiMode():
 		# Frame Containers
 		titleFrame = Frame(moi_window)
 		titleFrame.grid(row=0, column=0)	
-		mainUIFrame = Frame(moi_window, borderwidth=3, relief=GROOVE)
+		mainUIFrame = Frame(moi_window, borderwidth=3, relief='groove')
 		mainUIFrame.grid(row=1, column=0, sticky='nsew', padx=10)
 
 		# SubFrame Containers
-		controlFrame = Frame(mainUIFrame, borderwidth=0, relief=GROOVE)
+		controlFrame = Frame(mainUIFrame, borderwidth=0, relief='groove')
 		controlFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		resultFrame = Frame(mainUIFrame, borderwidth=0, relief=GROOVE)
+		resultFrame = Frame(mainUIFrame, borderwidth=0, relief='groove')
 		resultFrame.grid(row=0, column=1, sticky='nsew', padx=10)
 
 		# Frames
-		instructionFrame = Frame(controlFrame, borderwidth=3, relief=GROOVE)
+		instructionFrame = Frame(controlFrame, borderwidth=3, relief='groove')
 		instructionFrame.grid(row=0, sticky='nsew', padx=10)
-		buttonFrame = Frame(controlFrame, borderwidth=3, relief=GROOVE)
+		buttonFrame = Frame(controlFrame, borderwidth=3, relief='groove')
 		buttonFrame.grid(row=1, column=0, sticky='nsew', padx=10)
-		stsFrame = Frame(controlFrame, borderwidth=3, relief=GROOVE)
+		stsFrame = Frame(controlFrame, borderwidth=3, relief='groove')
 		stsFrame.grid(row=2, column=0, sticky='sew', padx=10) 
-		graphFrame = Frame(resultFrame, borderwidth=3, relief=GROOVE)
+		graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
 		graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		printFrame = Frame(resultFrame, borderwidth=3, relief=GROOVE)
+		printFrame = Frame(resultFrame, borderwidth=3, relief='groove')
 		printFrame.grid(row=1, column=0, sticky='nsew', padx=10)
 
 		moi_label = Label(titleFrame, text="Moment of Inertia Mode", font='Helvetica 16 bold')
@@ -462,7 +464,7 @@ class moiMode():
 
 		# Arduino MOI Standby button
 		moiStand = ttk.Button(instructionFrame, text='MOI Standby', command=moiMode.standby)
-		moiStand.pack(padx=10, pady=2, fill=X)	
+		moiStand.pack(padx=10, pady=2, fill='both')	
 
 		# Reset Button
 		moiResetButton = ttk.Button(instructionFrame, text='Reset', command=moiMode.reset)
@@ -490,19 +492,19 @@ class moiMode():
 		stslbl.grid(row=0, padx=10, pady=5, sticky='nw')
 		moi_status_str = StringVar(moi_window)
 		moi_status_str.set('Place CubeSat to begin')
-		status_label = Label(stsFrame, textvariable=moi_status_str, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
+		status_label = Label(stsFrame, textvariable=moi_status_str, justify='left', anchor='nw', font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
 		status_label.config(height=16, width=40, wraplength=320)
 		status_label.grid(row=1, padx=10, pady=5)	
 
 		# Buttons Layout
 		moiMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=moiMode.measure1)
-		moiMeasureButton1.pack(fill=X)
+		moiMeasureButton1.pack(fill='both')
 		moiMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=moiMode.measure2)
-		moiMeasureButton2.pack(fill=X)
+		moiMeasureButton2.pack(fill='both')
 		moiMeasureButton3 = ttk.Button(buttonFrame,text='Orientation 3 Measure', command=moiMode.measure3)
-		moiMeasureButton3.pack(fill=X)
+		moiMeasureButton3.pack(fill='both')
 		moiFinishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=moiMode.finish)
-		moiFinishButton.pack(fill=X)
+		moiFinishButton.pack(fill='both')
 
 		# Plot Graph
 		moiMode.plot(graphFrame)
@@ -512,7 +514,7 @@ class moiMode():
 		resultlbl.grid(row=0, padx=10, pady=5, sticky='nw')
 		moi_result_str = StringVar(moi_window)
 		moi_result_str.set('Results to be printed HERE...')
-		result_label = Label(printFrame, textvariable=moi_result_str, justify='left', anchor=NW, font='Arial 10', fg='black', bd=2, relief='sunken')
+		result_label = Label(printFrame, textvariable=moi_result_str, justify='left', anchor='nw', font='Arial 10', fg='black', bd=2, relief='sunken')
 		result_label.config(height=10, width=80, wraplength=640)
 		result_label.grid(row=1, padx=10, pady=5)
 
@@ -591,9 +593,9 @@ class moiMode():
 		tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
 
 """
-=========================
+==========================================================================================================================================================
 Buttons ENABLING AND DISABLING
-=========================
+==========================================================================================================================================================
 allButtons
 ---------
  0: 'connectArduino'
@@ -612,7 +614,7 @@ allButtons
 class buttonInteraction():
 	def buttonRefresh(buttonsToEnable):
 		for i in range(1, 12): 
-			allButtons[i].config(state=DISABLED)
+			allButtons[i].config(state='disabled')
 
 		for button in buttonsToEnable:
 			button.config(state='normal')
@@ -643,13 +645,13 @@ class calMode(object):
 		# Frame Containers
 		titleFrame = Frame(cal_window)
 		titleFrame.grid(row=0, column=0)	
-		stsFrame = Frame(cal_window, borderwidth=3, relief=GROOVE)
+		stsFrame = Frame(cal_window, borderwidth=3, relief='groove')
 		stsFrame.grid(row=1, column=0, sticky='nsew', padx=10)
-		mainUIFrame = Frame(cal_window, borderwidth=3, relief=GROOVE)
+		mainUIFrame = Frame(cal_window, borderwidth=3, relief='groove')
 		mainUIFrame.grid(row=2, column=0, sticky='nsew', padx=10)
-		comFrame = Frame(cal_window, borderwidth=3, relief=GROOVE)	
+		comFrame = Frame(cal_window, borderwidth=3, relief='groove')	
 		comFrame.grid(row = 3, column = 0, sticky = 'nsew', padx = 10)
-		moiFrame = Frame(cal_window, borderwidth=3, relief=GROOVE)
+		moiFrame = Frame(cal_window, borderwidth=3, relief='groove')
 		moiFrame.grid(row = 4, column = 0, sticky = 'nsew', padx = 10)
 
 		# Frames within mainUIFrame Containers
@@ -661,7 +663,7 @@ class calMode(object):
 		# Frames within comFrame Container
 		comFrameUI = Frame(comFrame)
 		comFrameUI.grid(row = 0, column = 0, sticky = 'nsew', padx =10)
-		graphFrame = Frame(comFrame, borderwidth=3, relief=GROOVE)
+		graphFrame = Frame(comFrame, borderwidth=3, relief='groove')
 		graphFrame.grid(row = 0, column = 1, sticky = 'e', padx=10)
 
 		# Frames within moiFrame Container
@@ -680,7 +682,7 @@ class calMode(object):
 		sts_label.grid(row=0,column=0, sticky='w')
 		cal_status_str = StringVar(cal_window)
 		cal_status_str.set('Place Calibration Block to begin')
-		status_label = Label(stsFrame, textvariable=cal_status_str, justify='left', anchor=NW, font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
+		status_label = Label(stsFrame, textvariable=cal_status_str, justify='left', anchor='nw', font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
 		status_label.config(height=3, width=100, wraplength=640)
 		status_label.grid(row=1, column=0, sticky='nw', pady=10, padx=5)
 
@@ -767,5 +769,5 @@ class calMode(object):
 
 
 
-if __name__=='__main__':
-    mergedBuild()
+# if __name__=='__main__':
+mergedBuild()
