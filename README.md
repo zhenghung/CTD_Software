@@ -1,6 +1,6 @@
 # CubeSat Testing Device
 
-> Arduino folder contains .ino files
+> Arduino folder contains .ino sketches
 
 > Python folder contains .py files 
 
@@ -21,7 +21,7 @@
 3. Open the build folder created and run mergedBuild.exe
 
 ## Operation Instructions
-Arduino begins in STARTUP mode and the buttons will switch the states
+Arduino begins in STARTUP mode and the buttons will switch the states as shown below
 
 ### Arduino State Diagram
 ![alt text](https://github.com/zhenghung/CTD-GUI/blob/master/CTD_StateDiagram.png)
