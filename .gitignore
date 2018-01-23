@@ -1,0 +1,7 @@
+Python/__pycache__
+*.pyc
+
+Python/build
+Python/test.py
+
+Thumbs.db
