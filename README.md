@@ -18,3 +18,6 @@
 1. cx_Freeze required
 2. run "python setup.py build" in the command line window of the directory
 3. Open the build folder created and run mergedBuild.exe
+
+### Arduino State Diagram
+![alt text](https://github.com/zhenghung/CTD-GUI/blob/master/CTD_StateDiagram.png)
