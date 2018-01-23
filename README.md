@@ -1,7 +1,6 @@
 # CubeSat Testing Device
 
 > Arduino folder contains .ino files
-
 > Python folder contains .py files 
 
 **Python Libraries Required:**
@@ -11,13 +10,17 @@
 4. numpy
 
 **Build Instructions:**
-1. Ensure the required libraries are preinstalled 
-2. Build and run the mergedBuild.py file
+1. Ensure the required libraries are preinstalled
+2. Compile and Upload the ArduinoCTD.ino sketch
+3. Build and run the mergedBuild.py file to open the GUI
 
 **EXE build Instructions**
 1. cx_Freeze required
 2. run "python setup.py `<folderName>` " in the command line window of the directory
 3. Open the build folder created and run mergedBuild.exe
+
+## Operation Instructions
+Arduino begins in STARTUP mode and the buttons will switch the states
 
 ### Arduino State Diagram
 ![alt text](https://github.com/zhenghung/CTD-GUI/blob/master/CTD_StateDiagram.png)
