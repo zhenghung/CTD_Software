@@ -1,7 +1,10 @@
+# Python files 
 Python/__pycache__
-*.pyc
-
 Python/build
 Python/test.py
 
+# Arduino files
+*.hex
+
+# Windows files
 Thumbs.db
