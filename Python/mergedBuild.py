@@ -54,6 +54,21 @@ class arduino(object):
 		ser.write(bytes(serialInput, 'UTF-8'))
 
 
+	def serialRead():
+		timeout = time.time() + 3	# 3 seconds timeout
+		while True:
+			bytesToRead=ser.inWaiting()
+			if(bytesToRead>0):
+				myData = ser.readline()
+				myData=str(myData,'utf-8')
+				myData = os.linesep.join([s for s in myData.splitlines() if s])
+				return myData
+			if(time.time() > timeout):
+				print('TIMEOUT')
+				ardStatus.set(ardStatus.get() + '\nTIMEOUT')
+				return False
+
+
 # ---------------------------
 
 
@@ -295,6 +310,17 @@ class comMode():
 			com_status_str.set('Measuring Orientation 1...')
 			
 			buttonInteraction.buttonRefresh([comResetButton, comMeasureButton2])
+			
+			loadCellA = arduino.serialRead()
+			loadCellB = arduino.serialRead()
+			loadCellC = arduino.serialRead() 
+
+			print(loadCellA)
+			print(loadCellB)
+			print(loadCellC)
+
+			com_status_str.set('Orientation 1 Measurement Done')
+			com_result_str.set(loadCellA+'    '+loadCellB+'    '+loadCellC)
 
 	def measure2():
 		arduino.serialPrint('E')
@@ -550,6 +576,13 @@ class moiMode():
 			moi_status_str.set('Rotate plate to begin measurement 1')
 
 			buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton2])
+
+			oscillations = arduino.serialRead()
+
+			print(oscillations)
+
+			moi_status_str.set('Orientation 1 Measurement Done')
+			moi_result_str.set(oscillations)
 
 	def measure2():
 		arduino.serialPrint('D')
