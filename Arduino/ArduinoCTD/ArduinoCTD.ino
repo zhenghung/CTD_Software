@@ -6,21 +6,25 @@ int firstLaunch = true;
 state_enum state = STARTUP;
 action_enum action;
 
-#define loadcellA A0
-#define loadcellB A1
-#define loadcellC A2
+#define LOADCELLA A0
+#define LOADCELLB A1
+#define LOADCELLC A2
 #define tachometer A3
 #define led 10
 
+int loadCellA;
+int loadCellB;
+int loadCellC;
+int oscillations;
 // DEFINING SERIAL INPUTS
 //#define CHGCOM 'Q'
 //#define CHGMOI 'A'
 //#define BEGIN_COM1
 
 void setup() {
-  pinMode(loadcellA, INPUT);
-  pinMode(loadcellB, INPUT);
-  pinMode(loadcellC, INPUT);
+  pinMode(LOADCELLA, INPUT);
+  pinMode(LOADCELLB, INPUT);
+  pinMode(LOADCELLC, INPUT);
   pinMode(tachometer, INPUT);
   pinMode(led, OUTPUT);
   Serial.begin(9600);
@@ -44,7 +48,7 @@ void state_machine(uint8_t action){
       }
       if(action == CHGMOI){
         state = MOI_STANDBY;
-        Serial.println("MOI_STANDBY");
+        Serial.println("CHGMOI");
       }
       break;
     case COM_STANDBY:
@@ -194,11 +198,24 @@ uint8_t listeningLoop(){
 
 void com_measure(int orientation){
   /* READ PIN VALUES AND CONVERT TO newtons? */
-  /* Serial print 3 values for each load cell*/
+  /* SERIAL print 3 values for each load cell*/
+  loadCellA = 100;
+  loadCellB = 100;
+  loadCellC = 100;
+  Serial.print("A: ");
+  Serial.println(loadCellA);
+  Serial.print("B: ");
+  Serial.println(loadCellB);
+  Serial.print("C: ");
+  Serial.println(loadCellC);
 }
 void moi_measure(int orientation){
   /* START TIMER AS SOON AS PIN VALUE CHANGES - BEGIN OSCILLATION*/
   /* TALLY NUMBER OF OSCILLATIONS */
   /* AFTER A CERTAIN OSCILLATION, STOP TIMING */
   /* SERIAL PRINT TOTAL TIME AND AVERAGE PERIOD */
+  delay(3000);
+  oscillations = 10;
+  Serial.print("OSC: ");
+  Serial.println(oscillations);
 }
