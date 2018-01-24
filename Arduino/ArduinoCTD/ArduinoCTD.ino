@@ -16,10 +16,6 @@ int loadCellA;
 int loadCellB;
 int loadCellC;
 int oscillations;
-// DEFINING SERIAL INPUTS
-//#define CHGCOM 'Q'
-//#define CHGMOI 'A'
-//#define BEGIN_COM1
 
 void setup() {
   pinMode(LOADCELLA, INPUT);
@@ -158,39 +154,41 @@ void state_machine(uint8_t action){
   }
 }
 
+/*
+ * Action Function
+ * listens to serial and apply action respectively
+ * [  'Q' ,    'W'   ,    'E'   ,   'R'  ]
+ * [CHGCOM,BEGIN_COM1,BEGIN_COM2,COM_DONE] 
+ *
+ * [  'A' ,    'S'   ,    'D'   ,    'F'   ,  'G'   ]
+ * [CHGMOI,BEGIN_MOI1,BEGIN_MOI2,BEGIN_MOI3,MOI_DONE] 
+ */
 uint8_t listeningLoop(){
   while(Serial.available()>0){
     serialInput = Serial.read();
     switch(serialInput){
       case 'Q':
         return CHGCOM;
-        break;
       case 'W':
         return BEGIN_COM1;
-        break;
       case 'E':
         return BEGIN_COM2;
-        break;  
       case 'R':
         return COM_DONE;
-        break;  
       case 'A':
         return CHGMOI;
-        break;
       case 'S':
         return BEGIN_MOI1;
-        break;
       case 'D':
         return BEGIN_MOI2;
-        break;
       case 'F':
         return BEGIN_MOI3;
-        break;
       case 'G':
         return MOI_DONE;
-        break;  
       case '0':
         return RESET;
+      default:
+        Serial.println("WRONG_INPUT");
         break;
     }
   }
