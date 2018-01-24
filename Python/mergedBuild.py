@@ -349,39 +349,7 @@ class comMode():
 		if cs_config.get()=='3U':
 			comMode.plot_cuboid(graphFrame, [0, 0, 0], (30 ,10 , 10), com[0], com[1], com[2])
 		elif cs_config.get()=='1U':
-			comMode.plotCube(graphFrame)
-
-	def plotCube(graphFrame):
-		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-		from matplotlib.figure import Figure
-		from mpl_toolkits.mplot3d import Axes3D
-		import matplotlib.pyplot as plt
-		import numpy as np
-		from itertools import product, combinations
-		import matplotlib.backends.backend_tkagg as tkagg
-
-		global canvas
-		fig = plt.figure()
-		ax = fig.gca(projection='3d')
-		ax.set_aspect("equal")
-
-		cubeWidth = 15;
-
-		# draw cube
-		r = [0, cubeWidth]
-		for s, e in combinations(np.array(list(product(r, r, r))), 2):
-		    if np.sum(np.abs(s-e)) == r[1]-r[0]:
-		        ax.plot3D(*zip(s, e), color="b")
-
-	    # draw a point
-		ax.scatter([cubeWidth/2], [cubeWidth/2], [cubeWidth/2], color="r", s=3)
-
-		canvas = FigureCanvasTkAgg(fig, master=graphFrame)
-		canvas.show()
-		canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
-
-		tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
-		ax.mouse_init()
+			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10 ,10 , 10), com[0], com[1], com[2])
 
 	def plot_cuboid(graphFrame, center, size, comx,comy,comz):
 		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -629,8 +597,8 @@ class moiMode():
 ==========================================================================================================================================================
 Buttons ENABLING AND DISABLING
 ==========================================================================================================================================================
-allButtons
----------
+allButtons [array]
+------------
  0: 'connectArduino'
  1: 'comStandby'
  2: 'com_reset'
