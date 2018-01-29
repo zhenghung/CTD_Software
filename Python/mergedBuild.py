@@ -158,6 +158,7 @@ class mergedBuild(object):
 			comMeasureButton1, 
 			comMeasureButton2, 
 			comFinishButton, 
+			comTareButton, 
 			moiStand, 
 			moiResetButton, 
 			moiMeasureButton1, 
@@ -198,7 +199,7 @@ class comMode():
 
 	def com_start(com_window):
 		global com_status_str, com_result_str
-		global comStand, comResetButton, comMeasureButton1, comMeasureButton2, comFinishButton
+		global comStand, comResetButton, comMeasureButton1, comMeasureButton2, comFinishButton, comTareButton
 		# Frame Containers
 		titleFrame = Frame(com_window)
 		titleFrame.grid(row=0, column=0)	
@@ -235,6 +236,10 @@ class comMode():
 		comResetButton = ttk.Button(instructionFrame, text='Reset', command=comMode.reset)
 		comResetButton.pack(padx=10, pady=2, fill='both')
 
+		# Tare Button
+		comTareButton = ttk.Button(instructionFrame, text='Tare', command=comMode.tare)
+		comTareButton.pack(padx=10, pady=2, fill='both')
+
 		# COM Instructions		
 		cs_label = Label(
 			instructionFrame, 
@@ -268,8 +273,10 @@ class comMode():
 		comFinishButton.pack(fill='both')
 
 		# Plot Center of Mass on 3D axes
-		comMode.drawGraphs(graphFrame, [0,0,0])
-
+		if(cs_config.get()=='3U'):
+			comMode.drawGraphs(graphFrame, [15,5,5])
+		else:
+			comMode.drawGraphs(graphFrame, [5,5,5])
 
 
 		# Results Textbox
@@ -288,7 +295,7 @@ class comMode():
 			ardStatus.set('COM Standby Mode')			
 			com_status_str.set('Arduino: COM Standby Mode\nAwaiting further instructions')
 
-			buttonInteraction.buttonRefresh([comMeasureButton1, moiStand])
+			buttonInteraction.buttonRefresh([comMeasureButton1, comTareButton, moiStand])
 
 	def reset():
 		result = messagebox.askyesno("Reset?", "Are You Sure?\nAll data will be lost", icon='warning')
@@ -298,9 +305,15 @@ class comMode():
 				ardStatus.set('COM Standby Mode')
 				com_status_str.set('Reset Success\nPlace CubeSat to begin...')
 
-				buttonInteraction.buttonRefresh([comMeasureButton1, moiStand])
+				buttonInteraction.buttonRefresh([comMeasureButton1, comTareButton, moiStand])
 		else:
 			ardStatus.set('TIMEOUT')
+
+
+	def tare():
+		arduino.serialPrint('T')
+		if(arduino.waitingOnSerial('TAREDONE')):
+			ardStatus.set('Tare Complete')
 
 
 	def measure1():
@@ -309,7 +322,7 @@ class comMode():
 			ardStatus.set('COM Measure 1 State')	
 			com_status_str.set('Measuring Orientation 1...')
 			
-			buttonInteraction.buttonRefresh([comResetButton, comMeasureButton2])
+			buttonInteraction.buttonRefresh([comResetButton, comTareButton, comMeasureButton2])
 			
 			loadCellA = arduino.serialRead()
 			loadCellB = arduino.serialRead()
@@ -320,7 +333,7 @@ class comMode():
 			print(loadCellC)
 
 			com_status_str.set('Orientation 1 Measurement Done')
-			com_result_str.set(loadCellA+'    '+loadCellB+'    '+loadCellC)
+			com_result_str.set(loadCellA+'    '+loadCellB+'    '+loadCellC+'\n')
 
 	def measure2():
 		arduino.serialPrint('E')
@@ -328,7 +341,18 @@ class comMode():
 			ardStatus.set('COM Measure 2 State')	
 			com_status_str.set('Measuring Orientation 2...')
 			
-			buttonInteraction.buttonRefresh([comResetButton, comFinishButton])
+			buttonInteraction.buttonRefresh([comResetButton, comTareButton, comFinishButton])
+
+			loadCellA = arduino.serialRead()
+			loadCellB = arduino.serialRead()
+			loadCellC = arduino.serialRead() 
+
+			print(loadCellA)
+			print(loadCellB)
+			print(loadCellC)
+
+			com_status_str.set('Orientation 1 Measurement Done')
+			com_result_str.set(com_result_str.get()+loadCellA+'    '+loadCellB+'    '+loadCellC+'\n')
 
 	def finish(graphFrame, resultFrame):
 		arduino.serialPrint('R')
@@ -347,9 +371,9 @@ class comMode():
 
 	def drawGraphs(graphFrame, com):
 		if cs_config.get()=='3U':
-			comMode.plot_cuboid(graphFrame, [0, 0, 0], (30 ,10 , 10), com[0], com[1], com[2])
+			comMode.plot_cuboid(graphFrame, [0, 0, 0], (30, 10, 10), com[0], com[1], com[2])
 		elif cs_config.get()=='1U':
-			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10 ,10 , 10), com[0], com[1], com[2])
+			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 10), com[0], com[1], com[2])
 
 	def plot_cuboid(graphFrame, center, size, comx,comy,comz):
 		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -363,21 +387,19 @@ class comMode():
 		ox, oy, oz = center
 		l, w, h = size
 
-		x = np.linspace(ox-l/2,ox+l/2,num=10)
-		y = np.linspace(oy-w/2,oy+w/2,num=10)
-		z = np.linspace(oz-h/2,oz+h/2,num=10)
+		x = np.linspace(ox,ox+l,num=10)
+		y = np.linspace(oy,oy+w,num=10)
+		z = np.linspace(oz,oz+h,num=10)
 		x1, z1 = np.meshgrid(x, z)
-		y11 = np.ones_like(x1)*(oy-w/2)
-		y12 = np.ones_like(x1)*(oy+w/2)
+		y11 = np.ones_like(x1)*(oy)
+		y12 = np.ones_like(x1)*(oy+w)
 		x2, y2 = np.meshgrid(x, y)
-		z21 = np.ones_like(x2)*(oz-h/2)
-		z22 = np.ones_like(x2)*(oz+h/2)
+		z21 = np.ones_like(x2)*(oz)
+		z22 = np.ones_like(x2)*(oz+h)
 		y3, z3 = np.meshgrid(y, z)
-		x31 = np.ones_like(y3)*(ox-l/2)
-		x32 = np.ones_like(y3)*(ox+l/2)
+		x31 = np.ones_like(y3)*(ox)
+		x32 = np.ones_like(y3)*(ox+l)
 
-		from mpl_toolkits.mplot3d import Axes3D
-		import matplotlib.pyplot as plt
 		fig = plt.figure()
 		ax = fig.gca(projection='3d')
 		ax.set_aspect("equal")
@@ -397,12 +419,17 @@ class comMode():
 		ax.plot_wireframe(x31, y3, z3, color='b', rstride=10, cstride=10, alpha=0.6)
 		# right surface
 		ax.plot_wireframe(x32, y3, z3, color='b', rstride=10, cstride=10, alpha=0.6)
+
 		ax.set_xlabel('X')
-		ax.set_xlim(-10, 10)
 		ax.set_ylabel('Y')
-		ax.set_ylim(-10, 10)
 		ax.set_zlabel('Z')
-		ax.set_zlim(-10, 10)
+		ax.set_xlim(0, l)
+		if(l==30):
+			ax.set_ylim(-10, 20)	
+			ax.set_zlim(-10, 20)
+		else:
+			ax.set_ylim(0, 10)	
+			ax.set_zlim(0, 10)
 
 
 	    # draw a point
@@ -412,9 +439,8 @@ class comMode():
 		canvas.show()
 		canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
 
-		import matplotlib.backends.backend_tkagg as tkagg
 		# canvas is your canvas, and root is your parent (Frame, TopLevel, Tk instance etc.)
-		tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
+		matplotlib.backends.backend_tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
 		ax.mouse_init()
 
 
@@ -605,16 +631,17 @@ allButtons [array]
  3: 'com_m1'
  4: 'com_m2'
  5: 'com_done'
- 6: 'moi_standby'
- 7: 'moi_reset'
- 8: 'moi_m1'
- 9: 'moi_m2'
-10: 'moi_m3'
-11: 'moi_done'
+ 6: 'tare'
+ 7: 'moi_standby'
+ 8: 'moi_reset'
+ 9: 'moi_m1'
+10: 'moi_m2'
+11: 'moi_m3'
+12: 'moi_done'
 """
 class buttonInteraction():
 	def buttonRefresh(buttonsToEnable):
-		for i in range(1, 12): 
+		for i in range(1, 13): 
 			allButtons[i].config(state='disabled')
 
 		for button in buttonsToEnable:
