@@ -1,5 +1,9 @@
+#include "HX711.h"
+
+HX711 cellA;
+
 enum state_enum {STARTUP, COM_STANDBY, COM_M1, COM_M2, MOI_STANDBY, MOI_M1, MOI_M2, MOI_M3};
-enum action_enum {CHGCOM, BEGIN_COM1, BEGIN_COM2, COM_DONE, CHGMOI, BEGIN_MOI1, BEGIN_MOI2, BEGIN_MOI3, MOI_DONE, RESET};
+enum action_enum {CHGCOM, BEGIN_COM1, BEGIN_COM2, COM_DONE, CHGMOI, BEGIN_MOI1, BEGIN_MOI2, BEGIN_MOI3, MOI_DONE, RESET, TARE, INVALID};
 
 int serialInput;
 int firstLaunch = true;
@@ -12,17 +16,19 @@ action_enum action;
 #define tachometer A3
 #define led 10
 
-int loadCellA;
-int loadCellB;
-int loadCellC;
-int oscillations;
+float loadCellA;
+float loadCellB;
+float loadCellC;
+float oscillations;
 
 void setup() {
-  pinMode(LOADCELLA, INPUT);
-  pinMode(LOADCELLB, INPUT);
-  pinMode(LOADCELLC, INPUT);
-  pinMode(tachometer, INPUT);
-  pinMode(led, OUTPUT);
+  cellA.begin(7,6);
+  cellA.set_scale(477.f);
+  cellA.tare();
+  // pinMode(LOADCELLB, INPUT);
+  // pinMode(LOADCELLC, INPUT);
+  // pinMode(tachometer, INPUT);
+  // pinMode(led, OUTPUT);
   Serial.begin(9600);
 }
 
@@ -37,10 +43,12 @@ void state_machine(uint8_t action){
       if(firstLaunch){
         Serial.println("STARTUP");
         firstLaunch = false;
+        cellA.tare();
       }
       if(action == CHGCOM){
         state = COM_STANDBY;
         Serial.println("CHGCOM");
+        cellA.tare();
       }
       if(action == CHGMOI){
         state = MOI_STANDBY;
@@ -61,6 +69,11 @@ void state_machine(uint8_t action){
         state = COM_STANDBY;
         Serial.println("RESET");
       }
+      else if(action == TARE){
+        cellA.tare();
+        Serial.println("TAREDONE");
+        action = INVALID;      
+      }
       else{
         
       }
@@ -69,11 +82,17 @@ void state_machine(uint8_t action){
       if(action == BEGIN_COM2){
         state = COM_M2;
         Serial.println("BEGIN_COM2");
-        com_measure(1);        
+        com_measure(1);      
       }
       else if(action == RESET){
         state = COM_STANDBY;
         Serial.println("RESET");
+        cellA.tare();
+      }
+      else if(action == TARE){
+        cellA.tare();
+        Serial.println("TAREDONE");
+        action = INVALID;  
       }
       else{
         
@@ -82,11 +101,17 @@ void state_machine(uint8_t action){
     case COM_M2:
       if(action == COM_DONE){
         state = COM_STANDBY;
-        Serial.println("COM_DONE");       
+        Serial.println("COM_DONE");    
       }
       else if(action == RESET){
         state = COM_STANDBY;
         Serial.println("RESET");
+        cellA.tare();
+      }
+      else if(action == TARE){
+        cellA.tare();
+        Serial.println("TAREDONE");
+        action = INVALID;
       }
       else{
         
@@ -96,6 +121,7 @@ void state_machine(uint8_t action){
       if(action == CHGCOM){
         state = COM_STANDBY;
         Serial.println("CHGCOM");
+        cellA.tare();
       }
       else if(action == BEGIN_MOI1){
         state = MOI_M1;
@@ -175,6 +201,8 @@ uint8_t listeningLoop(){
         return BEGIN_COM2;
       case 'R':
         return COM_DONE;
+      case 'T':
+        return TARE;
       case 'A':
         return CHGMOI;
       case 'S':
@@ -197,11 +225,11 @@ uint8_t listeningLoop(){
 void com_measure(int orientation){
   /* READ PIN VALUES AND CONVERT TO newtons? */
   /* SERIAL print 3 values for each load cell*/
-  loadCellA = 100;
+  loadCellA = cellA.get_units(20);
   loadCellB = 100;
   loadCellC = 100;
   Serial.print("A: ");
-  Serial.println(loadCellA);
+  Serial.println(loadCellA, 2);
   Serial.print("B: ");
   Serial.println(loadCellB);
   Serial.print("C: ");
