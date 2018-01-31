@@ -32,6 +32,7 @@ class arduino(object):
 			connect.grid(row=0, column=1)	
 			ardStatus.set('Arduino Connection attempt failed, ensure USB port is connected and try again')
 
+	# Wait for Serial String output (Timeouts after 3 seconds)
 	def waitingOnSerial(serialOutput):
 		timeout = time.time() + 3	# 3 seconds timeout
 		while True:
@@ -49,11 +50,12 @@ class arduino(object):
 				return False
 		return False
 
+	# Serial Prints a byte sized character (read as integer in Arduino)
 	def serialPrint(serialInput):
 		print('arduinoInput: '+serialInput)
 		ser.write(bytes(serialInput, 'UTF-8'))
 
-
+	# Read from the serial port, returns the string
 	def serialRead():
 		timeout = time.time() + 3	# 3 seconds timeout
 		while True:
@@ -70,8 +72,9 @@ class arduino(object):
 
 
 # ---------------------------
-
-
+"""
+Main GUI with COM and MOI modes as subframes
+"""
 class mergedBuild(object):
 	def  __init__(self):
 		from tkinter import ttk
@@ -230,15 +233,15 @@ class comMode():
 
 		# Arduino COM Standby button
 		comStand = ttk.Button(instructionFrame, text='COM Standby', command=comMode.standby)
-		comStand.pack(padx=10, pady=2, fill='both')	
+		comStand.pack(padx=10, pady=1, fill='both')	
 
 		# Reset Button
 		comResetButton = ttk.Button(instructionFrame, text='Reset', command=comMode.reset)
-		comResetButton.pack(padx=10, pady=2, fill='both')
+		comResetButton.pack(padx=10, pady=1, fill='both')
 
 		# Tare Button
 		comTareButton = ttk.Button(instructionFrame, text='Tare', command=comMode.tare)
-		comTareButton.pack(padx=10, pady=2, fill='both')
+		comTareButton.pack(padx=10, pady=1, fill='both')
 
 		# COM Instructions		
 		cs_label = Label(
@@ -274,7 +277,7 @@ class comMode():
 
 		# Plot Center of Mass on 3D axes
 		if(cs_config.get()=='3U'):
-			comMode.drawGraphs(graphFrame, [15,5,5])
+			comMode.drawGraphs(graphFrame, [5,5,15])
 		else:
 			comMode.drawGraphs(graphFrame, [5,5,5])
 
@@ -313,7 +316,7 @@ class comMode():
 	def tare():
 		arduino.serialPrint('T')
 		if(arduino.waitingOnSerial('TAREDONE')):
-			ardStatus.set('Tare Complete')
+			ardStatus.set(ardStatus.get()+'\n'+'Tare Complete')
 
 
 	def measure1():
@@ -324,16 +327,16 @@ class comMode():
 			
 			buttonInteraction.buttonRefresh([comResetButton, comTareButton, comMeasureButton2])
 			
-			loadCellA = arduino.serialRead()
-			loadCellB = arduino.serialRead()
-			loadCellC = arduino.serialRead() 
+			loadCell1A = arduino.serialRead()
+			loadCell1B = arduino.serialRead()
+			loadCell1C = arduino.serialRead() 
 
-			print(loadCellA)
-			print(loadCellB)
-			print(loadCellC)
+			print(loadCell1A)
+			print(loadCell1B)
+			print(loadCell1C)
 
 			com_status_str.set('Orientation 1 Measurement Done')
-			com_result_str.set(loadCellA+'    '+loadCellB+'    '+loadCellC+'\n')
+			com_result_str.set(loadCell1A+'    '+loadCell1B+'    '+loadCell1C+'\n')
 
 	def measure2():
 		arduino.serialPrint('E')
@@ -343,16 +346,16 @@ class comMode():
 			
 			buttonInteraction.buttonRefresh([comResetButton, comTareButton, comFinishButton])
 
-			loadCellA = arduino.serialRead()
-			loadCellB = arduino.serialRead()
-			loadCellC = arduino.serialRead() 
+			loadCell2A = arduino.serialRead()
+			loadCell2B = arduino.serialRead()
+			loadCell2C = arduino.serialRead() 
 
-			print(loadCellA)
-			print(loadCellB)
-			print(loadCellC)
+			print(loadCell2A)
+			print(loadCell2B)
+			print(loadCell2C)
 
 			com_status_str.set('Orientation 1 Measurement Done')
-			com_result_str.set(com_result_str.get()+loadCellA+'    '+loadCellB+'    '+loadCellC+'\n')
+			com_result_str.set(com_result_str.get()+loadCell2A+'    '+loadCell2B+'    '+loadCell2C+'\n')
 
 	def finish(graphFrame, resultFrame):
 		arduino.serialPrint('R')
@@ -363,15 +366,37 @@ class comMode():
 			graphFrame.destroy()
 			graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
 			graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-			comMode.drawGraphs(graphFrame, [10,0,0])
+			comMode.drawGraphs(graphFrame, [5,5,5])
 
 			buttonInteraction.buttonRefresh([comResetButton, moiStand])
 			
-			
+	def calcCOM():
+		# COM Preset Values
+		L=30
+		W=5000
+		D=20
+
+		# Orientation 1 (default frame 0)
+		fromA_x1 = (loadCell1B+loadCell1C)*L/W		
+		fromA_y1 = (loadCell1C-loadCell1B)*D/(2*W)
+
+		fromO_x1 = fromA_x1
+		fromO_y1 = (D/2) + fromA_y1
+
+		# Orientation 2 (Rotate about z axis 90 degrees)
+		fromA_x2 = (loadCell2B+loadCell2C)*L/W		
+		fromA_y2 = (loadCell2C-loadCell2B)*D/(2*W) 
+
+		fromO_x2 = fromA_x2
+		fromO_y2 = (D/2) + fromA_y2
+
+
+
+
 
 	def drawGraphs(graphFrame, com):
 		if cs_config.get()=='3U':
-			comMode.plot_cuboid(graphFrame, [0, 0, 0], (30, 10, 10), com[0], com[1], com[2])
+			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 30), com[0], com[1], com[2])
 		elif cs_config.get()=='1U':
 			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 10), com[0], com[1], com[2])
 
@@ -423,11 +448,13 @@ class comMode():
 		ax.set_xlabel('X')
 		ax.set_ylabel('Y')
 		ax.set_zlabel('Z')
-		ax.set_xlim(0, l)
-		if(l==30):
+		
+		if(h==30):
+			ax.set_xlim(-10, 20)
 			ax.set_ylim(-10, 20)	
-			ax.set_zlim(-10, 20)
+			ax.set_zlim(0, 30)
 		else:
+			ax.set_xlim(0, 10)
 			ax.set_ylim(0, 10)	
 			ax.set_zlim(0, 10)
 
@@ -733,7 +760,7 @@ class calMode(object):
 
 
 		# COM Section
-		calMode.plotCube(graphFrame)
+		# calMode.plotCube(graphFrame)
 		comlbl = Label(comFrameUI, text='Center of Mass')
 		comlbl.grid(row=0, column=0)
 
