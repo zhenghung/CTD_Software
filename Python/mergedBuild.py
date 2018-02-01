@@ -19,13 +19,14 @@ class arduino(object):
 			connect.grid(row=0, column=1)
 			if(arduino.waitingOnSerial('STARTUP')):
 				ardStatus.set('Arduino Connected')
-			ser.close()
-			ser.open()
+				ser.close()
+				ser.open()
 
-			comStand.config(state='normal')
-			moiStand.config(state='normal')
+				buttonInteraction.buttonRefresh([comStand, moiStand])
 
-			time.sleep(2)  #at least wait for 2s 
+				time.sleep(2)  #at least wait for 2s 
+	
+
 		except serial.SerialException: 
 			connect.destroy()
 			connect = Label(controlFrame, text="Failed", font='Calibri 12 bold', fg='Red', width=7)
@@ -34,7 +35,7 @@ class arduino(object):
 
 	# Wait for Serial String output (Timeouts after 3 seconds)
 	def waitingOnSerial(serialOutput):
-		timeout = time.time() + 3	# 3 seconds timeout
+		timeout = time.time() + 10	# 3 seconds timeout
 		while True:
 			bytesToRead=ser.inWaiting()
 			if(bytesToRead>0):
@@ -68,7 +69,7 @@ class arduino(object):
 			if(time.time() > timeout):
 				print('TIMEOUT')
 				ardStatus.set(ardStatus.get() + '\nTIMEOUT')
-				return False
+				return 'No Data Timeout'
 
 
 # ---------------------------
@@ -320,6 +321,7 @@ class comMode():
 
 
 	def measure1():
+		global loadCell1A, loadCell1B, loadCell1C
 		arduino.serialPrint('W')
 		if(arduino.waitingOnSerial('BEGIN_COM1')):
 			ardStatus.set('COM Measure 1 State')	
@@ -327,16 +329,22 @@ class comMode():
 			
 			buttonInteraction.buttonRefresh([comResetButton, comTareButton, comMeasureButton2])
 			
-			loadCell1A = arduino.serialRead()
-			loadCell1B = arduino.serialRead()
-			loadCell1C = arduino.serialRead() 
+			# time.sleep(1)
+			loadCell1AStr = arduino.serialRead()
+			loadCell1A = float(loadCell1AStr.lstrip('A: '))
+			loadCell1BStr = arduino.serialRead()
+			loadCell1B = float(loadCell1BStr.lstrip('B: '))
+			loadCell1CStr = arduino.serialRead() 
+			loadCell1C = float(loadCell1CStr.lstrip('C: '))
 
-			print(loadCell1A)
-			print(loadCell1B)
-			print(loadCell1C)
+			if(arduino.waitingOnSerial('END_COM1')):
 
-			com_status_str.set('Orientation 1 Measurement Done')
-			com_result_str.set(loadCell1A+'    '+loadCell1B+'    '+loadCell1C+'\n')
+				print(loadCell1AStr)
+				print(loadCell1BStr)
+				print(loadCell1CStr)
+
+				com_status_str.set('Orientation 1 Measurement Done')
+				com_result_str.set(loadCell1AStr+'    '+loadCell1BStr+'    '+loadCell1CStr+'\n')
 
 	def measure2():
 		arduino.serialPrint('E')
@@ -346,22 +354,28 @@ class comMode():
 			
 			buttonInteraction.buttonRefresh([comResetButton, comTareButton, comFinishButton])
 
-			loadCell2A = arduino.serialRead()
-			loadCell2B = arduino.serialRead()
-			loadCell2C = arduino.serialRead() 
+			loadCell2AStr = arduino.serialRead()
+			loadCell2A = float(loadCell2AStr.lstrip('A: '))
+			loadCell2BStr = arduino.serialRead()
+			loadCell2B = float(loadCell2BStr.lstrip('B: '))
+			loadCell2CStr = arduino.serialRead() 
+			loadCell2C = float(loadCell2CStr.lstrip('C: '))
 
-			print(loadCell2A)
-			print(loadCell2B)
-			print(loadCell2C)
+
+			print(loadCell2AStr)
+			print(loadCell2BStr)
+			print(loadCell2CStr)
 
 			com_status_str.set('Orientation 1 Measurement Done')
-			com_result_str.set(com_result_str.get()+loadCell2A+'    '+loadCell2B+'    '+loadCell2C+'\n')
+			com_result_str.set(com_result_str.get()+loadCell2AStr+'    '+loadCell2BStr+'    '+loadCell2CStr+'\n')
 
 	def finish(graphFrame, resultFrame):
 		arduino.serialPrint('R')
 		if(arduino.waitingOnSerial('COM_DONE')):
 			ardStatus.set('COM Standby Mode')			
 			com_status_str.set('Computing Results...\n')
+
+			calcCOM()
 
 			graphFrame.destroy()
 			graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
@@ -375,6 +389,12 @@ class comMode():
 		L=30
 		W=5000
 		D=20
+
+		loadCell1A = 500
+		loadCell1B = 500
+		loadCell1C = 500
+
+
 
 		# Orientation 1 (default frame 0)
 		fromA_x1 = (loadCell1B+loadCell1C)*L/W		
