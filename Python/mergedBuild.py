@@ -5,7 +5,7 @@ import os
 
 ser = 0
 BOLD = ('Helvetica', '24', 'bold')
-default_cs = '3U'
+default_cs = 'TEST'
 
 # --------------------------
 class arduino(object):
@@ -116,7 +116,7 @@ class mergedBuild(object):
 		cs_text.grid(row=1, column=0)
 		cs_config = StringVar(root)
 		cs_config.set(default_cs)
-		w = ttk.OptionMenu(controlFrame, cs_config, '', "1U", "2U", "3U")
+		w = ttk.OptionMenu(controlFrame, cs_config, '', "1U", "2U", "3U", "TEST")
 		w.grid(row = 1, column = 1, sticky='nsew')
 
 		# Calibration Button
@@ -279,8 +279,10 @@ class comMode():
 		# Plot Center of Mass on 3D axes
 		if(cs_config.get()=='3U'):
 			comMode.drawGraphs(graphFrame, [5,5,15])
-		else:
+		elif (cs_config.get()=='1U'):
 			comMode.drawGraphs(graphFrame, [5,5,5])
+		elif (cs_config.get()=='TEST'):
+			comMode.drawGraphs(graphFrame, [11.55,10,0])
 
 
 		# Results Textbox
@@ -375,26 +377,32 @@ class comMode():
 			ardStatus.set('COM Standby Mode')			
 			com_status_str.set('Computing Results...\n')
 
-			calcCOM()
+			comCoord = calcCOM()
 
 			graphFrame.destroy()
 			graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
 			graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-			comMode.drawGraphs(graphFrame, [5,5,5])
+			comMode.drawGraphs(graphFrame, [comCoord[0],comCoord[1],5])
 
 			buttonInteraction.buttonRefresh([comResetButton, moiStand])
 			
 	def calcCOM():
 		# COM Preset Values
-		L=30
-		W=5000
+		L=17.32
 		D=20
+
+		# A is placed at (0, 5)
+		# B is placed at (8.7, 0)
+		# C is placed at (8.7, 10)
 
 		loadCell1A = 500
 		loadCell1B = 500
 		loadCell1C = 500
+		loadCell2A = 500
+		loadCell2B = 500
+		loadCell2C = 500
 
-
+		W = loadCell1A+loadCell1B+loadCell1C
 
 		# Orientation 1 (default frame 0)
 		fromA_x1 = (loadCell1B+loadCell1C)*L/W		
@@ -403,12 +411,17 @@ class comMode():
 		fromO_x1 = fromA_x1
 		fromO_y1 = (D/2) + fromA_y1
 
-		# Orientation 2 (Rotate about z axis 90 degrees)
-		fromA_x2 = (loadCell2B+loadCell2C)*L/W		
-		fromA_y2 = (loadCell2C-loadCell2B)*D/(2*W) 
+		print(fromO_x1)
+		print(fromO_y1)
 
-		fromO_x2 = fromA_x2
-		fromO_y2 = (D/2) + fromA_y2
+		return [fromO_x1, fromO_y1]
+
+		# # Orientation 2 (Rotate about z axis 90 degrees)
+		# fromA_x2 = (loadCell2B+loadCell2C)*L/W		
+		# fromA_y2 = (loadCell2C-loadCell2B)*D/(2*W) 
+
+		# fromO_x2 = fromA_x2
+		# fromO_y2 = (D/2) + fromA_y2
 
 
 
@@ -419,6 +432,8 @@ class comMode():
 			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 30), com[0], com[1], com[2])
 		elif cs_config.get()=='1U':
 			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 10), com[0], com[1], com[2])
+		elif cs_config.get()=='TEST':
+			comMode.plot_cuboid(graphFrame, [0, 0, 0], (0, 0, 0), com[0], com[1], com[2])
 
 	def plot_cuboid(graphFrame, center, size, comx,comy,comz):
 		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -427,6 +442,7 @@ class comMode():
 		import matplotlib.pyplot as plt
 		import numpy as np
 		from itertools import product, combinations
+		from matplotlib.collections import LineCollection
 
 		global canvas, com_point, ax
 		ox, oy, oz = center
@@ -474,13 +490,26 @@ class comMode():
 			ax.set_ylim(-10, 20)	
 			ax.set_zlim(0, 30)
 		else:
-			ax.set_xlim(0, 10)
-			ax.set_ylim(0, 10)	
-			ax.set_zlim(0, 10)
+			ax.set_xlim(0, 20)
+			ax.set_ylim(0, 20)	
+			ax.set_zlim(0, 20)
 
+		length = 17.32 	# Length of Normal to the opposite line connecting 2 load cells
+		distance = 20 	# Straight line distance between adjacent load cells
 
-	    # draw a point
-		com_point = ax.scatter(comx, comy, comz, color="r", s=3)
+		# Triangular Line drawing the range of the load cell positions
+		AB_x = np.linspace(0,length,50)
+		AB_y = np.linspace(distance/2,0,50)
+		BC_x = np.linspace(length,length,50)
+		BC_y = np.linspace(0,distance,50)
+		CA_x = np.linspace(length,0,50)
+		CA_y = np.linspace(distance,distance/2,50)
+		ax.plot(AB_x, AB_y, 0, label='AB', color='g')
+		ax.plot(BC_x, BC_y, 0, label='BC', color='g')
+		ax.plot(CA_x, CA_y, 0, label='CA', color='g')
+
+	    # draw a point representing the COM
+		com_point = ax.scatter(comx, comy, comz, color="r", s=5)
 
 		canvas = FigureCanvasTkAgg(fig, master=graphFrame)
 		canvas.show()
@@ -843,6 +872,6 @@ class calMode(object):
 
 
 
-
+# comMode.calcCOM()
 # if __name__=='__main__':
 mergedBuild()
