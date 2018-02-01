@@ -27,18 +27,13 @@ float oscillations;
 
 void setup() {
   cellA.begin(7,6); // PIN7 is DT, PIN6 is SCK
-  cellA.set_scale(477.f);
-  cellA.tare();
   cellB.begin(5,4); // PIN5 is DT, PIN4 is SCK
-  cellB.set_scale(450.f);
-  cellB.tare();
   cellC.begin(3,2); // PIN3 is DT, PIN2 is SCK
-  cellC.set_scale(440.f);
-  cellC.tare();
-  // pinMode(LOADCELLB, INPUT);
-  // pinMode(LOADCELLC, INPUT);
-  // pinMode(tachometer, INPUT);
-  // pinMode(led, OUTPUT);
+  cellA.set_scale(450.f);
+  cellB.set_scale(442.f);
+  cellC.set_scale(453.f);
+  tareCells();
+
   Serial.begin(9600);
 }
 
@@ -76,6 +71,7 @@ void state_machine(uint8_t action){
         state = COM_M1;
         Serial.println("BEGIN_COM1");
         com_measure(0);
+        Serial.println("END_COM1");
         prevAction = BEGIN_COM1;
       }
       else if(action == RESET){
@@ -252,15 +248,15 @@ uint8_t listeningLoop(){
 void com_measure(int orientation){
   /* READ PIN VALUES AND CONVERT TO newtons? */
   /* SERIAL print 3 values for each load cell*/
-  loadCellA = cellA.get_units(20);
-  loadCellB = cellB.get_units(20);
-  loadCellC = cellC.get_units(20);
+  // loadCellA = cellA.get_units(20);
+  // loadCellB = cellB.get_units(20);
+  // loadCellC = cellC.get_units(20);
   Serial.print("A: ");
-  Serial.println(loadCellA, 2);
+  Serial.println(cellA.get_units(20), 2);
   Serial.print("B: ");
-  Serial.println(loadCellB, 2);
+  Serial.println(cellB.get_units(20), 2);
   Serial.print("C: ");
-  Serial.println(loadCellC, 2);
+  Serial.println(cellC.get_units(20), 2);
 }
 void moi_measure(int orientation){
   /* START TIMER AS SOON AS PIN VALUE CHANGES - BEGIN OSCILLATION*/
