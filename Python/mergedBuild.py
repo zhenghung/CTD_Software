@@ -282,7 +282,7 @@ class comMode():
 		elif (cs_config.get()=='1U'):
 			comMode.drawGraphs(graphFrame, [5,5,5])
 		elif (cs_config.get()=='TEST'):
-			comMode.drawGraphs(graphFrame, [11.55,10,0])
+			comMode.drawGraphs(graphFrame, [500,10500,0]) # Invalid point in init
 
 
 		# Results Textbox
@@ -348,6 +348,15 @@ class comMode():
 				com_status_str.set('Orientation 1 Measurement Done')
 				com_result_str.set(loadCell1AStr+'    '+loadCell1BStr+'    '+loadCell1CStr+'\n')
 
+				# For TESTING
+				if(cs_config.get()=='TEST'):
+					comCoord = comMode.calcCOM()
+
+					graphFrame.destroy()
+					graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
+					graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
+					comMode.drawGraphs(graphFrame, [comCoord[0],comCoord[1],0])
+
 	def measure2():
 		arduino.serialPrint('E')
 		if(arduino.waitingOnSerial('BEGIN_COM2')):
@@ -377,12 +386,12 @@ class comMode():
 			ardStatus.set('COM Standby Mode')			
 			com_status_str.set('Computing Results...\n')
 
-			comCoord = calcCOM()
+			comCoord = comMode.calcCOM()
 
 			graphFrame.destroy()
 			graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
 			graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-			comMode.drawGraphs(graphFrame, [comCoord[0],comCoord[1],5])
+			comMode.drawGraphs(graphFrame, [comCoord[0],comCoord[1],0])
 
 			buttonInteraction.buttonRefresh([comResetButton, moiStand])
 			
@@ -395,12 +404,13 @@ class comMode():
 		# B is placed at (8.7, 0)
 		# C is placed at (8.7, 10)
 
-		loadCell1A = 500
-		loadCell1B = 500
-		loadCell1C = 500
-		loadCell2A = 500
-		loadCell2B = 500
-		loadCell2C = 500
+		# Only for TESTING purposes
+		# loadCell1A = 500
+		# loadCell1B = 500
+		# loadCell1C = 500
+		# loadCell2A = 500
+		# loadCell2B = 500
+		# loadCell2C = 500
 
 		W = loadCell1A+loadCell1B+loadCell1C
 
@@ -433,7 +443,7 @@ class comMode():
 		elif cs_config.get()=='1U':
 			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 10), com[0], com[1], com[2])
 		elif cs_config.get()=='TEST':
-			comMode.plot_cuboid(graphFrame, [0, 0, 0], (0, 0, 0), com[0], com[1], com[2])
+			comMode.plot_cuboid(graphFrame, [0, 0, 0], (20, 20, 0), com[0], com[1], com[2])
 
 	def plot_cuboid(graphFrame, center, size, comx,comy,comz):
 		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -489,7 +499,7 @@ class comMode():
 			ax.set_xlim(-10, 20)
 			ax.set_ylim(-10, 20)	
 			ax.set_zlim(0, 30)
-		else:
+		else: # TEST MODE
 			ax.set_xlim(0, 20)
 			ax.set_ylim(0, 20)	
 			ax.set_zlim(0, 20)
@@ -497,6 +507,9 @@ class comMode():
 		length = 17.32 	# Length of Normal to the opposite line connecting 2 load cells
 		distance = 20 	# Straight line distance between adjacent load cells
 
+		ax.text(0, distance/2, 0, 'A', size=20, zorder=1, color='k')
+		ax.text(length, 0, 0, 'B', size=20, zorder=1, color='k')
+		ax.text(length, distance, 0, 'C', size=20, zorder=1, color='k')
 		# Triangular Line drawing the range of the load cell positions
 		AB_x = np.linspace(0,length,50)
 		AB_y = np.linspace(distance/2,0,50)
