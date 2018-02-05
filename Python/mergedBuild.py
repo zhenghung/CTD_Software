@@ -282,7 +282,7 @@ class comMode():
 		elif (cs_config.get()=='1U'):
 			comMode.drawGraphs(graphFrame, [5,5,5])
 		elif (cs_config.get()=='TEST'):
-			comMode.drawGraphs(graphFrame, [500,10500,0]) # Invalid point in init
+			comMode.drawGraphs(graphFrame, [100,100,0]) # Invalid point in init
 
 
 		# Results Textbox
@@ -357,7 +357,7 @@ class comMode():
 					graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
 					comMode.drawGraphs(graphFrame, [comCoord[0],comCoord[1],0])
 
-					com_result_str.set(com_result_str+'X: '+comCoord[0]+' ; Y: '+comCoord[1]+'\n')
+					com_result_str.set(com_result_str.get()+'X: '+comCoord[0]+' ; Y: '+comCoord[1]+'\n')
 
 	def measure2():
 		arduino.serialPrint('E')
@@ -399,8 +399,8 @@ class comMode():
 			
 	def calcCOM():
 		# COM Preset Values
-		L=17.32
-		D=20
+		D=25
+		L=D*0.866 
 
 		# A is placed at (0, 5)
 		# B is placed at (8.7, 0)
@@ -445,7 +445,7 @@ class comMode():
 		elif cs_config.get()=='1U':
 			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 10), com[0], com[1], com[2])
 		elif cs_config.get()=='TEST':
-			comMode.plot_cuboid(graphFrame, [0, 0, 0], (20, 20, 0), com[0], com[1], com[2])
+			comMode.plot_cuboid(graphFrame, [0, 0, 0], (25, 25, 0), com[0], com[1], com[2])
 
 	def plot_cuboid(graphFrame, center, size, comx,comy,comz):
 		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -502,12 +502,12 @@ class comMode():
 			ax.set_ylim(-10, 20)	
 			ax.set_zlim(0, 30)
 		else: # TEST MODE
-			ax.set_xlim(0, 20)
-			ax.set_ylim(0, 20)	
-			ax.set_zlim(0, 20)
+			ax.set_xlim(0, 25)
+			ax.set_ylim(0, 25)	
+			ax.set_zlim(0, 25)
 
-		length = 17.32 	# Length of Normal to the opposite line connecting 2 load cells
-		distance = 20 	# Straight line distance between adjacent load cells
+		distance = 25 				# Straight line distance between adjacent load cells
+		length = distance*0.866 	# Length of Normal to the opposite line connecting 2 load cells
 
 		if(cs_config.get()=='TEST'):
 			ax.text(0, distance/2, 0, 'A', size=20, zorder=1, color='k')
@@ -525,7 +525,7 @@ class comMode():
 			ax.plot(CA_x, CA_y, 0, label='CA', color='g')
 
 	    # draw a point representing the COM
-		com_point = ax.scatter(comx, comy, comz, color="r", s=5)
+		com_point = ax.scatter(comx, comy, comz, color="r", s=10)
 
 		canvas = FigureCanvasTkAgg(fig, master=graphFrame)
 		canvas.show()
