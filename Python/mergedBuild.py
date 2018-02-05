@@ -77,6 +77,7 @@ class arduino(object):
 Main GUI with COM and MOI modes as subframes
 """
 class mergedBuild(object):
+
 	def  __init__(self):
 		from tkinter import ttk
 		global cs_config, ardStatus, allButtons
@@ -116,9 +117,10 @@ class mergedBuild(object):
 		cs_text.grid(row=1, column=0)
 		cs_config = StringVar(root)
 		cs_config.set(default_cs)
-		w = ttk.OptionMenu(controlFrame, cs_config, '', "1U", "2U", "3U", "TEST")
+		w = ttk.OptionMenu(controlFrame, cs_config, '', "1U", "2U", "3U", "TEST", command=mergedBuild.refreshGraph)
 		w.grid(row = 1, column = 1, sticky='nsew')
 
+		
 		# Calibration Button
 		calButton = ttk.Button(controlFrame, command = calMode, text="Calibrate Measurements")
 		calButton.grid(row=2, columnspan=2, sticky='nsew')
@@ -185,8 +187,13 @@ class mergedBuild(object):
 		# Activate the window.
 		root.mainloop()
 
-		
-
+	# Refreshes COM Graph plot
+	def refreshGraph(myObject):
+		global graphFrame, resultFrame
+		graphFrame.destroy()
+		graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
+		graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
+		comMode.drawGraphs(graphFrame,[0,0,0])
 
 """
 ==========================================================================================================================================================
@@ -202,7 +209,7 @@ import matplotlib.pyplot
 class comMode():
 
 	def com_start(com_window):
-		global com_status_str, com_result_str
+		global com_status_str, com_result_str, graphFrame, resultFrame
 		global comStand, comResetButton, comMeasureButton1, comMeasureButton2, comFinishButton, comTareButton
 		# Frame Containers
 		titleFrame = Frame(com_window)
@@ -442,6 +449,8 @@ class comMode():
 	def drawGraphs(graphFrame, com):
 		if cs_config.get()=='3U':
 			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 30), com[0], com[1], com[2])
+		elif cs_config.get()=='2U':
+			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 20), com[0], com[1], com[2])
 		elif cs_config.get()=='1U':
 			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 10), com[0], com[1], com[2])
 		elif cs_config.get()=='TEST':
@@ -480,32 +489,45 @@ class comMode():
 		ax.set_xbound(0-200, 0+200)
 		ax.set_ybound(0-200, 0+200)
 		ax.set_zbound(0-200, 0+200)
+
+		if(h==30):
+			ax.set_xlim(-10, 20)
+			ax.set_ylim(-10, 20)	
+			ax.set_zlim(0, 30)
+			segmentLine = 3
+		elif(h==20):
+			ax.set_xlim(-5, 15)
+			ax.set_ylim(-5, 15)	
+			ax.set_zlim(0, 20)	
+			segmentLine= 5
+		elif(h==10):
+			ax.set_xlim(0, 10)
+			ax.set_ylim(0, 10)	
+			ax.set_zlim(0, 10)
+			segmentLine=10
+		else: # TEST MODE
+			ax.set_xlim(0, 25)
+			ax.set_ylim(0, 25)	
+			ax.set_zlim(0, 25)
+			segmentLine=10
+
 		# outside surface
-		ax.plot_wireframe(x1, y11, z1, color='b', rstride=10, cstride=10, alpha=0.6)
+		ax.plot_wireframe(x1, y11, z1, color='b', rstride=segmentLine, cstride=10, alpha=0.6)
 		# inside surface
-		ax.plot_wireframe(x1, y12, z1, color='b', rstride=10, cstride=10, alpha=0.6)
+		ax.plot_wireframe(x1, y12, z1, color='b', rstride=segmentLine, cstride=10, alpha=0.6)
 		# bottom surface
 		ax.plot_wireframe(x2, y2, z21, color='b', rstride=10, cstride=10, alpha=0.6)
 		# upper surface
 		ax.plot_wireframe(x2, y2, z22, color='b', rstride=10, cstride=10, alpha=0.6)
 		# left surface
-		ax.plot_wireframe(x31, y3, z3, color='b', rstride=10, cstride=10, alpha=0.6)
+		ax.plot_wireframe(x31, y3, z3, color='b', rstride=segmentLine, cstride=10, alpha=0.6)
 		# right surface
-		ax.plot_wireframe(x32, y3, z3, color='b', rstride=10, cstride=10, alpha=0.6)
+		ax.plot_wireframe(x32, y3, z3, color='b', rstride=segmentLine, cstride=10, alpha=0.6)
 
 		ax.set_xlabel('X')
 		ax.set_ylabel('Y')
 		ax.set_zlabel('Z')
 		
-		if(h==30):
-			ax.set_xlim(-10, 20)
-			ax.set_ylim(-10, 20)	
-			ax.set_zlim(0, 30)
-		else: # TEST MODE
-			ax.set_xlim(0, 25)
-			ax.set_ylim(0, 25)	
-			ax.set_zlim(0, 25)
-
 		distance = 25 				# Straight line distance between adjacent load cells
 		length = distance*0.866 	# Length of Normal to the opposite line connecting 2 load cells
 
