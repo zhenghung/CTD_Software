@@ -357,6 +357,8 @@ class comMode():
 					graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
 					comMode.drawGraphs(graphFrame, [comCoord[0],comCoord[1],0])
 
+					com_result_str.set(com_result_str+'X: '+comCoord[0]+' ; Y: '+comCoord[1]+'\n')
+
 	def measure2():
 		arduino.serialPrint('E')
 		if(arduino.waitingOnSerial('BEGIN_COM2')):
@@ -507,19 +509,20 @@ class comMode():
 		length = 17.32 	# Length of Normal to the opposite line connecting 2 load cells
 		distance = 20 	# Straight line distance between adjacent load cells
 
-		ax.text(0, distance/2, 0, 'A', size=20, zorder=1, color='k')
-		ax.text(length, 0, 0, 'B', size=20, zorder=1, color='k')
-		ax.text(length, distance, 0, 'C', size=20, zorder=1, color='k')
-		# Triangular Line drawing the range of the load cell positions
-		AB_x = np.linspace(0,length,50)
-		AB_y = np.linspace(distance/2,0,50)
-		BC_x = np.linspace(length,length,50)
-		BC_y = np.linspace(0,distance,50)
-		CA_x = np.linspace(length,0,50)
-		CA_y = np.linspace(distance,distance/2,50)
-		ax.plot(AB_x, AB_y, 0, label='AB', color='g')
-		ax.plot(BC_x, BC_y, 0, label='BC', color='g')
-		ax.plot(CA_x, CA_y, 0, label='CA', color='g')
+		if(cs_config.get()=='TEST'):
+			ax.text(0, distance/2, 0, 'A', size=20, zorder=1, color='k')
+			ax.text(length, 0, 0, 'B', size=20, zorder=1, color='k')
+			ax.text(length, distance, 0, 'C', size=20, zorder=1, color='k')
+			# Triangular Line drawing the range of the load cell positions
+			AB_x = np.linspace(0,length,50)
+			AB_y = np.linspace(distance/2,0,50)
+			BC_x = np.linspace(length,length,50)
+			BC_y = np.linspace(0,distance,50)
+			CA_x = np.linspace(length,0,50)
+			CA_y = np.linspace(distance,distance/2,50)
+			ax.plot(AB_x, AB_y, 0, label='AB', color='g')
+			ax.plot(BC_x, BC_y, 0, label='BC', color='g')
+			ax.plot(CA_x, CA_y, 0, label='CA', color='g')
 
 	    # draw a point representing the COM
 		com_point = ax.scatter(comx, comy, comz, color="r", s=5)
