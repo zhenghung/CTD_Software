@@ -29,9 +29,10 @@ void setup() {
   cellA.begin(7,6); // PIN7 is DT, PIN6 is SCK
   cellB.begin(5,4); // PIN5 is DT, PIN4 is SCK
   cellC.begin(3,2); // PIN3 is DT, PIN2 is SCK
-  cellA.set_scale(450.f);
+  cellA.set_scale(452.f);
   cellB.set_scale(442.f);
-  cellC.set_scale(453.f);
+  cellC.set_scale(453.5f);
+  delay(2000);
   tareCells();
 
   Serial.begin(9600);

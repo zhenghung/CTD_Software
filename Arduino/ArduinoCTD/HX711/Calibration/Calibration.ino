@@ -15,9 +15,10 @@ void setup() {
   cellA.begin(7, 6);
   cellB.begin(5, 4);
   cellC.begin(3, 2);
-  cellA.set_scale(450.5f);
+  cellA.set_scale(452.f);
   cellB.set_scale(442.f);
-  cellC.set_scale(453.f);
+  cellC.set_scale(453.5f);
+  delay(2000);
   cellA.tare();
   cellB.tare();
   cellC.tare();
