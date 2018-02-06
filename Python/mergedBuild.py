@@ -330,7 +330,7 @@ class comMode():
 
 
 	def measure1():
-		global loadCell1A, loadCell1B, loadCell1C
+		global loadCell1A, loadCell1B, loadCell1C, graphFrame
 		arduino.serialPrint('W')
 		if(arduino.waitingOnSerial('BEGIN_COM1')):
 			ardStatus.set('COM Measure 1 State')	
@@ -364,7 +364,7 @@ class comMode():
 					graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
 					comMode.drawGraphs(graphFrame, [comCoord[0],comCoord[1],0])
 
-					com_result_str.set(com_result_str.get()+'X: '+comCoord[0]+' ; Y: '+comCoord[1]+'\n')
+					com_result_str.set(com_result_str.get()+'X: '+str(comCoord[0])+' ; Y: '+str(comCoord[1])+'\n')
 
 	def measure2():
 		arduino.serialPrint('E')
