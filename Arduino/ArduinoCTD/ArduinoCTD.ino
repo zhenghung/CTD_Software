@@ -253,11 +253,11 @@ void com_measure(int orientation){
   // loadCellB = cellB.get_units(20);
   // loadCellC = cellC.get_units(20);
   Serial.print("A: ");
-  Serial.println(cellA.get_units(20), 2);
+  Serial.println(cellA.get_units(10), 2);
   Serial.print("B: ");
-  Serial.println(cellB.get_units(20), 2);
+  Serial.println(cellB.get_units(10), 2);
   Serial.print("C: ");
-  Serial.println(cellC.get_units(20), 2);
+  Serial.println(cellC.get_units(10), 2);
 }
 void moi_measure(int orientation){
   /* START TIMER AS SOON AS PIN VALUE CHANGES - BEGIN OSCILLATION*/
