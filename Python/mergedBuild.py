@@ -5,7 +5,7 @@ import os
 
 ser = 0
 BOLD = ('Helvetica', '24', 'bold')
-default_cs = 'TEST'
+default_cs = '3U'
 
 # --------------------------
 class arduino(object):
@@ -193,7 +193,7 @@ class mergedBuild(object):
 		graphFrame.destroy()
 		graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
 		graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		comMode.drawGraphs(graphFrame,[0,0,0])
+		comMode.drawGraphs(graphFrame,[100,100,100])
 
 """
 ==========================================================================================================================================================
@@ -285,9 +285,9 @@ class comMode():
 
 		# Plot Center of Mass on 3D axes
 		if(cs_config.get()=='3U'):
-			comMode.drawGraphs(graphFrame, [5,5,15])
+			comMode.drawGraphs(graphFrame, [100,100,0])
 		elif (cs_config.get()=='1U'):
-			comMode.drawGraphs(graphFrame, [5,5,5])
+			comMode.drawGraphs(graphFrame, [100,100,0])
 		elif (cs_config.get()=='TEST'):
 			comMode.drawGraphs(graphFrame, [100,100,0]) # Invalid point in init
 
@@ -319,8 +319,8 @@ class comMode():
 				com_status_str.set('Reset Success\nPlace CubeSat to begin...')
 
 				buttonInteraction.buttonRefresh([comMeasureButton1, comTareButton, moiStand])
-		else:
-			ardStatus.set('TIMEOUT')
+			else:
+				ardStatus.set('TIMEOUT')	
 
 
 	def tare():
