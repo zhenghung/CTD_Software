@@ -7,21 +7,20 @@ HX711 cellC;
 void setup() {
   Serial.begin(9600);
   Serial.println("HX711 Demo");
-
   Serial.println("Initializing the scale");
-  // parameter "gain" is ommited; the default value 128 is used by the library
-  // HX711.DOUT	- pin #A1
-  // HX711.PD_SCK	- pin #A0
+
+  // cell#.begin( DT , SCK)
   cellA.begin(7, 6);
   cellB.begin(5, 4);
   cellC.begin(3, 2);
+
+  // Change these till measured weight is accurate
   cellA.set_scale(452.f);
   cellB.set_scale(442.f);
   cellC.set_scale(453.5f);
-  delay(2000);
-  cellA.tare();
-  cellB.tare();
-  cellC.tare();
+
+  delay(2000);  // Delay 2 seconds to ensure taring is even for all load cells
+  tareCells();
 }
 
 void loop() {
@@ -35,12 +34,16 @@ void loop() {
 
   if(Serial.available()>0){
     if(Serial.read()=='T'){
-      Serial.println("tare");
-      cellA.tare();
-      cellB.tare();
-      cellC.tare();
+      Serial.println("TARE");
+      tareCells();
     }
   }
   
+}
 
+
+void tareCells(){
+  cellA.tare();
+  cellB.tare();
+  cellC.tare();
 }
