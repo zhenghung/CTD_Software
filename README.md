@@ -15,6 +15,7 @@
 4. [numpy](http://www.numpy.org/)
 
 **Calibration Instruction**
+
 Load Cell Calibration
 1. Build and upload Calibration.ino sketch onto the arduino UNO
 2. Connect the load cell and amplifiers as described in the comments
