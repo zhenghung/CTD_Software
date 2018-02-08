@@ -14,6 +14,15 @@
 3. [Matplotlib](https://matplotlib.org/)
 4. [numpy](http://www.numpy.org/)
 
+**Calibration Instruction**
+Load Cell Calibration
+1. Build and upload Calibration.ino sketch onto the arduino UNO
+2. Connect the load cell and amplifiers as described in the comments
+3. Open the serial monitor and add a known weight onto the load cell
+4. If it's not accurate, change the set_scale(value) until it does become accurate
+5. This value is calculated by using set_scale() with no parameters, taking the output and dividing it by the known weight
+6. Replace the value, performing trial and error till it's accurate and repeat for each load cell
+
 **Build Instructions:**
 1. Ensure the required libraries are preinstalled
 2. Compile and Upload the ArduinoCTD.ino sketch
