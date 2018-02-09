@@ -39,3 +39,6 @@ Arduino begins in STARTUP mode and the buttons will switch the states as shown b
 
 ### Arduino State Diagram
 ![alt text](https://github.com/zhenghung/CTD-GUI/blob/master/CTD_StateDiagram.png)
+
+### Circuit Connections 
+![alt text](https://github.com/zhenghung/CTD-GUI/blob/master/CTD_SubsystemV2.png)
