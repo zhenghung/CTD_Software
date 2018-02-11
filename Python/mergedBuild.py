@@ -144,7 +144,6 @@ class mergedBuild(object):
 		status_label.grid(row=1, padx=10, pady=(0,5), sticky='nsew')
 
 		# Notebook TabsView
-		from tkinter import ttk
 		tabsView = ttk.Notebook(tabFrame)
 		comFrame = Frame(tabsView)
 		moiFrame = Frame(tabsView)
@@ -283,13 +282,13 @@ class comMode():
 		comFinishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=lambda: comMode.finish(graphFrame, resultFrame))
 		comFinishButton.pack(fill='both')
 
-		# Plot Center of Mass on 3D axes
+		# Plot 3D axes with invalid COM point
 		if(cs_config.get()=='3U'):
 			comMode.drawGraphs(graphFrame, [100,100,0])
 		elif (cs_config.get()=='1U'):
 			comMode.drawGraphs(graphFrame, [100,100,0])
 		elif (cs_config.get()=='TEST'):
-			comMode.drawGraphs(graphFrame, [100,100,0]) # Invalid point in init
+			comMode.drawGraphs(graphFrame, [100,100,0]) 
 
 
 		# Results Textbox
@@ -442,10 +441,6 @@ class comMode():
 		# fromO_x2 = fromA_x2
 		# fromO_y2 = (D/2) + fromA_y2
 
-
-
-
-
 	def drawGraphs(graphFrame, com):
 		if cs_config.get()=='3U':
 			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 30), com[0], com[1], com[2])
@@ -464,8 +459,8 @@ class comMode():
 		import numpy as np
 		from itertools import product, combinations
 		from matplotlib.collections import LineCollection
-
 		global canvas, com_point, ax
+
 		ox, oy, oz = center
 		l, w, h = size
 
@@ -766,14 +761,6 @@ class buttonInteraction():
 CALIBRATION MODE
 ==========================================================================================================================================================
 """
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
-
-import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
-import matplotlib.pyplot as plt
-
 
 class calMode(object):
 	def __init__(self):
