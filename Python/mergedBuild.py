@@ -188,11 +188,16 @@ class mergedBuild(object):
 
 	# Refreshes COM Graph plot
 	def refreshGraph(myObject):
-		global graphFrame, resultFrame
-		graphFrame.destroy()
-		graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
-		graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		comMode.drawGraphs(graphFrame,[100,100,100])
+		global comGraphFrame, comResultFrame, com_status_str
+		comGraphFrame.destroy()
+		comGraphFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
+		comGraphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
+		comMode.drawGraphs(comGraphFrame,[100,100,100])
+
+		if(cs_config.get()=='TEST'):
+			com_status_str.set('Place Test Block on Plate')
+		else:
+			com_status_str.set('Place CubeSat to begin')
 
 """
 ==========================================================================================================================================================
@@ -208,7 +213,7 @@ import matplotlib.pyplot
 class comMode():
 
 	def com_start(com_window):
-		global com_status_str, com_result_str, graphFrame, resultFrame
+		global com_status_str, com_result_str, comGraphFrame, comResultFrame
 		global comStand, comResetButton, comMeasureButton1, comMeasureButton2, comFinishButton, comTareButton
 		# Frame Containers
 		titleFrame = Frame(com_window)
@@ -219,8 +224,8 @@ class comMode():
 		# SubFrame Containers
 		controlFrame = Frame(mainUIFrame, borderwidth=0, relief='groove')
 		controlFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		resultFrame = Frame(mainUIFrame, borderwidth=0, relief='groove')
-		resultFrame.grid(row=0, column=1, sticky='nsew', padx=10)
+		comResultFrame = Frame(mainUIFrame, borderwidth=0, relief='groove')
+		comResultFrame.grid(row=0, column=1, sticky='nsew', padx=10)
 
 		# Frames
 		instructionFrame = Frame(controlFrame, borderwidth=3, relief='groove')
@@ -229,9 +234,9 @@ class comMode():
 		buttonFrame.grid(row=1, column=0, sticky='nsew', padx=10)
 		stsFrame = Frame(controlFrame, borderwidth=3, relief='groove')
 		stsFrame.grid(row=2, column=0, sticky='sew', padx=10) 
-		graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
-		graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		printFrame = Frame(resultFrame, borderwidth=3, relief='groove')
+		comGraphFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
+		comGraphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
+		printFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
 		printFrame.grid(row=1, column=0, sticky='nsew', padx=10)
 
 		com_label = Label(titleFrame, text="Centre of Mass Mode", font='Helvetica 16 bold')
@@ -279,16 +284,16 @@ class comMode():
 		comMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=comMode.measure2)
 		comMeasureButton2.pack(fill='both')
 
-		comFinishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=lambda: comMode.finish(graphFrame, resultFrame))
+		comFinishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=lambda: comMode.finish(comGraphFrame, comResultFrame))
 		comFinishButton.pack(fill='both')
 
 		# Plot 3D axes with invalid COM point
 		if(cs_config.get()=='3U'):
-			comMode.drawGraphs(graphFrame, [100,100,0])
+			comMode.drawGraphs(comGraphFrame, [100,100,0])
 		elif (cs_config.get()=='1U'):
-			comMode.drawGraphs(graphFrame, [100,100,0])
+			comMode.drawGraphs(comGraphFrame, [100,100,0])
 		elif (cs_config.get()=='TEST'):
-			comMode.drawGraphs(graphFrame, [100,100,0]) 
+			comMode.drawGraphs(comGraphFrame, [100,100,0]) 
 
 
 		# Results Textbox
@@ -358,10 +363,10 @@ class comMode():
 				if(cs_config.get()=='TEST'):
 					comCoord = comMode.calcCOM()
 
-					graphFrame.destroy()
-					graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
-					graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-					comMode.drawGraphs(graphFrame, [comCoord[0],comCoord[1],0])
+					comGraphFrame.destroy()
+					comGraphFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
+					comGraphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
+					comMode.drawGraphs(comGraphFrame, [comCoord[0],comCoord[1],0])
 
 					com_result_str.set(com_result_str.get()+'X: '+str(comCoord[0])+' ; Y: '+str(comCoord[1])+'\n')
 
@@ -396,10 +401,10 @@ class comMode():
 
 			comCoord = comMode.calcCOM()
 
-			graphFrame.destroy()
-			graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
-			graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-			comMode.drawGraphs(graphFrame, [comCoord[0],comCoord[1],0])
+			comGraphFrame.destroy()
+			comGraphFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
+			comGraphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
+			comMode.drawGraphs(comGraphFrame, [comCoord[0],comCoord[1],0])
 
 			buttonInteraction.buttonRefresh([comResetButton, moiStand])
 			
@@ -443,13 +448,13 @@ class comMode():
 
 	def drawGraphs(graphFrame, com):
 		if cs_config.get()=='3U':
-			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 30), com[0], com[1], com[2])
+			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (10, 10, 30), com[0], com[1], com[2])
 		elif cs_config.get()=='2U':
-			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 20), com[0], com[1], com[2])
+			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (10, 10, 20), com[0], com[1], com[2])
 		elif cs_config.get()=='1U':
-			comMode.plot_cuboid(graphFrame, [0, 0, 0], (10, 10, 10), com[0], com[1], com[2])
+			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (10, 10, 10), com[0], com[1], com[2])
 		elif cs_config.get()=='TEST':
-			comMode.plot_cuboid(graphFrame, [0, 0, 0], (25, 25, 0), com[0], com[1], com[2])
+			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (25, 25, 0), com[0], com[1], com[2])
 
 	def plot_cuboid(graphFrame, center, size, comx,comy,comz):
 		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -544,12 +549,12 @@ class comMode():
 	    # draw a point representing the COM
 		com_point = ax.scatter(comx, comy, comz, color="r", s=10)
 
-		canvas = FigureCanvasTkAgg(fig, master=graphFrame)
+		canvas = FigureCanvasTkAgg(fig, master=comGraphFrame)
 		canvas.show()
 		canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
 
 		# canvas is your canvas, and root is your parent (Frame, TopLevel, Tk instance etc.)
-		matplotlib.backends.backend_tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
+		matplotlib.backends.backend_tkagg.NavigationToolbar2TkAgg(canvas, comGraphFrame)
 		ax.mouse_init()
 
 
