@@ -79,7 +79,7 @@ Main GUI with COM and MOI modes as subframes
 class mergedBuild(object):
 
 	def  __init__(self):
-		from tkinter import ttk
+		# from tkinter import ttk
 		global cs_config, ardStatus, allButtons
 		# Create main application window.
 		root = Tk()
@@ -176,7 +176,7 @@ class mergedBuild(object):
 
 		# Allow pressing <Esc> to close the window.
 		root.bind('<Escape>', lambda e: root.quit())
-		root.protocol("WM_DELETE_WINDOW", lambda: root.quit())	# Quitting Window Exits Program
+		root.protocol("WM_DELETE_WINDOW", lambda: root.quit())	# Closing Window Exits Program
 
 		# The window is not resizable. 
 		root.resizable(0,0) 
