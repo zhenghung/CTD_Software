@@ -38,7 +38,7 @@ Load Cell Calibration
 Arduino begins in STARTUP mode and the buttons will switch the states as shown below
 
 ### Arduino State Diagram
-![StateDiagram with no Calibration](https://github.com/zhenghung/CTD-GUI/blob/master/CTD_StateDiagram.png)
+![StateDiagram with no Calibration](https://github.com/zhenghung/CTD-GUI/blob/master/Images/CTD_StateDiagram.png)
 
 ### Circuit Connections 
-![Fritzing Diagram](https://github.com/zhenghung/CTD-GUI/blob/master/CTD_SubsystemV2.png)
+![Fritzing Diagram](https://github.com/zhenghung/CTD-GUI/blob/master/Images/CTD_SubsystemV2.png)
