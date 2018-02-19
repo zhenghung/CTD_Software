@@ -1,4 +1,4 @@
-from tkinter import Tk, Button, Label, Frame, StringVar, messagebox, ttk
+from tkinter import Tk, Button, Label, Frame, StringVar, messagebox, ttk, filedialog
 import time
 import serial
 import os
@@ -72,6 +72,39 @@ class arduino(object):
 				return 'No Data Timeout'
 
 
+# --------------------------
+class osOperations:
+	def exportCSV(mode):
+		global comData, moiData
+		comData = []
+		comData.append(['SomeValA','SomeValB','SomeValC'])
+		dir_name = filedialog.askdirectory()
+		osOperations.writeCSV(dir_name, comData, mode)
+
+	def writeCSV(dir_name, data, mode):	 
+		import csv
+		if(mode == 'COM'):
+			fileName = '\\COM_Measurements.csv'
+		else:
+			fileName = '\\MOI_Measurements.csv'	
+
+		with open(dir_name+fileName, 'w', newline='') as csvfile:
+		    filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+
+		    if (mode =='COM'):
+			    filewriter.writerow(['Orientation 1', '', '', 'Orientation 2', '', '', 'COM Coordinates'])
+			    filewriter.writerow(['LoadCellA', 'LoadCellB', 'LoadCellC', 'LoadCellA', 'LoadCellB', 'LoadCellC', 'X', 'Y', 'Z'])
+		    elif (mode =='MOI'):
+			    filewriter.writerow(['Orientation 1', 'Orientation 2', 'Orientation 3', 'Moment of Inertia'])
+			    filewriter.writerow(['Period (s)', 'Period (s)', 'Period (s)', 'X', 'Y', 'Z'])
+
+		    for i in data:
+			    filewriter.writerow(i)
+		    os.startfile(dir_name)
+		
+
+
+
 # ---------------------------
 """
 Main GUI with COM and MOI modes as subframes
@@ -142,6 +175,7 @@ class mergedBuild(object):
 		status_label = Label(stsFrame, textvariable=ardStatus, justify='left', anchor='nw', font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
 		status_label.config(height = 2, width=50, wraplength=320)
 		status_label.grid(row=1, padx=10, pady=(0,5), sticky='nsew')
+
 
 		# Notebook TabsView
 		tabsView = ttk.Notebook(tabFrame)
@@ -276,8 +310,10 @@ class comMode():
 		com_status_str = StringVar(com_window)
 		com_status_str.set('Place CubeSat to begin')
 		status_label = Label(stsFrame, textvariable=com_status_str, justify='left', anchor='nw', font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
-		status_label.config(height=18, width=40, wraplength=320)
+		status_label.config(height=15, width=40, wraplength=320)
 		status_label.grid(row=1, padx=10, pady=5)
+		exportButton = ttk.Button(stsFrame, text='Export to CSV', command=lambda: osOperations.exportCSV('COM'))
+		exportButton.grid(row=2, padx=10, pady=5, sticky='nsew')
 
 		comMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=comMode.measure1)
 		comMeasureButton1.pack(fill='both')
@@ -302,7 +338,7 @@ class comMode():
 		com_result_str = StringVar(com_window)
 		com_result_str.set('Results to be printed HERE...')
 		result_label = Label(printFrame, textvariable=com_result_str, justify='left', anchor='nw', font='Arial 10', fg='black', bd=2, relief='sunken')
-		result_label.config(height=10, width=80, wraplength=640)
+		result_label.config(height=8, width=80, wraplength=640)
 		result_label.grid(row=1, padx=10, pady=5)
 
 
@@ -627,8 +663,11 @@ class moiMode():
 		moi_status_str = StringVar(moi_window)
 		moi_status_str.set('Place CubeSat to begin')
 		status_label = Label(stsFrame, textvariable=moi_status_str, justify='left', anchor='nw', font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
-		status_label.config(height=16, width=40, wraplength=320)
-		status_label.grid(row=1, padx=10, pady=5)	
+		status_label.config(height=14, width=40, wraplength=320)
+		status_label.grid(row=1, padx=10, pady=5)
+		exportButton = ttk.Button(stsFrame, text='Export to CSV', command=lambda: osOperations.exportCSV('MOI'))
+		exportButton.grid(row=2, padx=10, pady=5, sticky='nsew')
+	
 
 		# Buttons Layout
 		moiMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=moiMode.measure1)
@@ -649,7 +688,7 @@ class moiMode():
 		moi_result_str = StringVar(moi_window)
 		moi_result_str.set('Results to be printed HERE...')
 		result_label = Label(printFrame, textvariable=moi_result_str, justify='left', anchor='nw', font='Arial 10', fg='black', bd=2, relief='sunken')
-		result_label.config(height=10, width=80, wraplength=640)
+		result_label.config(height=8, width=80, wraplength=640)
 		result_label.grid(row=1, padx=10, pady=5)
 
 
