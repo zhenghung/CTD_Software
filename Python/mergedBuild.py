@@ -430,12 +430,15 @@ class comMode():
 			com_result_str.set(com_result_str.get()+loadCell2AStr+'    '+loadCell2BStr+'    '+loadCell2CStr+'\n')
 
 	def finish(graphFrame, resultFrame):
+		global comGraphFrame
+
 		arduino.serialPrint('R')
 		if(arduino.waitingOnSerial('COM_DONE')):
 			ardStatus.set('COM Standby Mode')			
 			com_status_str.set('Computing Results...\n')
 
-			comCoord = comMode.calcCOM()
+			# comCoord = comMode.calcCOM()
+			comCoord = [0,0]
 
 			comGraphFrame.destroy()
 			comGraphFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
@@ -795,7 +798,8 @@ allButtons [array]
 class buttonInteraction():
 	def buttonRefresh(buttonsToEnable):
 		for i in range(1, 13): 
-			allButtons[i].config(state='disabled')
+			if allButtons[i] not in buttonsToEnable:
+				allButtons[i].config(state='disabled')
 
 		for button in buttonsToEnable:
 			button.config(state='normal')
@@ -808,7 +812,7 @@ CALIBRATION MODE
 
 class calMode(object):
 	def __init__(self):
-		global cal_status_str, calType_str, cal_window
+		global cal_status_str, cal_window
 
 		# Setup Window
 		cal_window = Tk()
@@ -820,24 +824,20 @@ class calMode(object):
 		titleFrame.grid(row=0, column=0)	
 		stsFrame = Frame(cal_window, borderwidth=3, relief='groove')
 		stsFrame.grid(row=1, column=0, sticky='nsew', padx=10)
-		mainUIFrame = Frame(cal_window, borderwidth=3, relief='groove')
-		mainUIFrame.grid(row=2, column=0, sticky='nsew', padx=10)
 		comFrame = Frame(cal_window, borderwidth=3, relief='groove')	
-		comFrame.grid(row = 3, column = 0, sticky = 'nsew', padx = 10)
+		comFrame.grid(row = 2, column = 0, sticky = 'nsew', padx = 10)
 		moiFrame = Frame(cal_window, borderwidth=3, relief='groove')
-		moiFrame.grid(row = 4, column = 0, sticky = 'nsew', padx = 10)
-
-		# Frames within mainUIFrame Containers
-		calOptionFrame = Frame(mainUIFrame)
-		calOptionFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		insFrame = Frame(mainUIFrame)
-		insFrame.grid(row = 0, column = 1, sticky ='nsew', padx = 10)
+		moiFrame.grid(row = 3, column = 0, sticky = 'nsew', padx = 10)
 
 		# Frames within comFrame Container
-		comFrameUI = Frame(comFrame)
-		comFrameUI.grid(row = 0, column = 0, sticky = 'nsew', padx =10)
-		graphFrame = Frame(comFrame, borderwidth=3, relief='groove')
-		graphFrame.grid(row = 0, column = 1, sticky = 'e', padx=10)
+		beginCOMCalFrame = Frame(comFrame, borderwidth=5)
+		beginCOMCalFrame.grid(row = 1, column = 0, sticky = 'nsew', padx =2)
+		weightCOMCalFrame = Frame(comFrame, borderwidth=3, relief='groove')
+		weightCOMCalFrame.grid(row = 1, column = 1, sticky = 'nsew', padx=2)
+		readCOMCalFrame = Frame(comFrame, borderwidth=3, relief='groove')
+		readCOMCalFrame.grid(row = 1, column = 2, sticky = 'nsew', padx=2)
+		scaleCOMCalFrame = Frame(comFrame, borderwidth=3, relief='groove')
+		scaleCOMCalFrame.grid(row = 1, column = 3, sticky = 'nsew', padx=2)
 
 		# Frames within moiFrame Container
 
@@ -852,36 +852,15 @@ class calMode(object):
 
 		# Status Window
 		sts_label = Label(stsFrame, text='Status Message: ', justify='left')
-		sts_label.grid(row=0,column=0, sticky='w')
+		sts_label.pack(anchor='w')
 		cal_status_str = StringVar(cal_window)
 		cal_status_str.set('Place Calibration Block to begin')
 		status_label = Label(stsFrame, textvariable=cal_status_str, justify='left', anchor='nw', font='Arial 10 italic', fg='gray', bd=2, relief='sunken')
-		status_label.config(height=3, width=100, wraplength=640)
-		status_label.grid(row=1, column=0, sticky='nw', pady=10, padx=5)
-
-		# OptionMenu
-		calType_str = StringVar(cal_window)
-		calType_str.set('COM')
-		calTypeLbl = Label(calOptionFrame, text='Calibration Type: ')
-		calTypeLbl.grid(row = 0, column = 0, sticky = 'w')
-		calType = ttk.OptionMenu(calOptionFrame, calType_str, "","MOI", "COM")
-		calType.grid(row = 0, column = 1)
-		
-		# Instruction Labels
-		insLabel = Label(
-			insFrame, 
-			text=
-			'1. Place CubeSat on the plate\n'
-			'2. Select the Calibration type and Begin calibration measurement'
-			, justify='left')	
-		insLabel.grid(row = 0, column = 3, sticky='w')
-
+		status_label.config(height=3)
+		status_label.pack(fill='both')
 
 		# COM Section
-		# calMode.plotCube(graphFrame)
-		comlbl = Label(comFrameUI, text='Center of Mass')
-		comlbl.grid(row=0, column=0)
-
+		calMode.comFrameLayout(comFrame, beginCOMCalFrame, weightCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame)
 
 		# MOI Section
 		moilbl = Label(moiFrame, text='Moment of Inertia')
@@ -899,32 +878,89 @@ class calMode(object):
 		cal_window.mainloop()
 
 
-	def plotCube(graphFrame):
-		from mpl_toolkits.mplot3d import Axes3D
-		import matplotlib.pyplot as plt
-		import numpy as np
-		from itertools import product, combinations
+	def comFrameLayout(comFrame, beginCOMCalFrame, weightCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame):
+		# COM Section
+		global weightA, weightB, weightC, readA, readB, readC, scaleA, scaleB, scaleC
 
-		fig = plt.figure()
-		ax = fig.gca(projection='3d')
-		ax.set_aspect("equal")
+		comlbl = Label(comFrame, text='Center of Mass', font='Helvetica 12 bold')
+		comlbl.grid(row=0, column=0)
 
-		cubeWidth = 15;
+		calComStandByButton = ttk.Button(beginCOMCalFrame, text = 'StandBy')
+		calComStandByButton.pack(fill='both')
+		calComBeginButton = ttk.Button(beginCOMCalFrame, text = 'Begin Calibration')
+		calComBeginButton.pack(fill='both')
+		resetComButton = ttk.Button(beginCOMCalFrame, text = 'Reset')
+		resetComButton.pack(fill='both')
 
-		# draw cube
-		r = [0, cubeWidth]
-		for s, e in combinations(np.array(list(product(r, r, r))), 2):
-		    if np.sum(np.abs(s-e)) == r[1]-r[0]:
-		        ax.plot3D(*zip(s, e), color="b")
+		comWeightLbl = Label(weightCOMCalFrame, text = 'Weight (g)')
+		comWeightLbl.grid(row=0, column=0, columnspan=2)
+		weightALbl = Label(weightCOMCalFrame, text = 'A: ')
+		weightALbl.grid(row=1, column = 0)
+		weightBLbl = Label(weightCOMCalFrame, text = 'B: ')
+		weightBLbl.grid(row=2, column = 0)	
+		weightCLbl = Label(weightCOMCalFrame, text = 'C: ')
+		weightCLbl.grid(row=3, column = 0)
+		weightA = StringVar(cal_window)
+		weightA.set('weightA')
+		weightAText = ttk.Entry(weightCOMCalFrame, textvariable = weightA)
+		weightAText.grid(row=1, column=1)
+		weightB = StringVar(cal_window)
+		weightB.set('weightB')
+		weightBText = ttk.Entry(weightCOMCalFrame, textvariable = weightB)
+		weightBText.grid(row=2, column=1)
+		weightC = StringVar(cal_window)
+		weightC.set('weightC')
+		weightCText = ttk.Entry(weightCOMCalFrame, textvariable = weightC)
+		weightCText.grid(row=3, column=1)
 
-	    # draw a point
-		ax.scatter([cubeWidth/2], [cubeWidth/2], [cubeWidth/2], color="r", s=3)
+		readFinalLbl = Label(readCOMCalFrame, text = 'Read Final Value (RAW)')
+		readFinalLbl.grid(row=0, column=0, columnspan=2)
+		readALbl = Label(readCOMCalFrame, text = 'A: ')
+		readALbl.grid(row=1, column = 0)
+		readBLbl = Label(readCOMCalFrame, text = 'B: ')
+		readBLbl.grid(row=2, column = 0)	
+		readCLbl = Label(readCOMCalFrame, text = 'C: ')
+		readCLbl.grid(row=3, column = 0)
+		readA = StringVar(cal_window)
+		readA.set('readA')
+		readAText = ttk.Entry(readCOMCalFrame, textvariable = readA)
+		readAText.grid(row=1, column=1)
+		readB = StringVar(cal_window)
+		readB.set('readB')
+		readBText = ttk.Entry(readCOMCalFrame, textvariable = readB)
+		readBText.grid(row=2, column=1)
+		readC = StringVar(cal_window)
+		readC.set('readC')
+		readCText = ttk.Entry(readCOMCalFrame, textvariable = readC)
+		readCText.grid(row=3, column=1)
 
-		canvas = FigureCanvasTkAgg(fig, master=graphFrame)
-		canvas.show()
-		canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
+		scaleLbl = Label(scaleCOMCalFrame, text = 'Scale Factor (Manual)')
+		scaleLbl.grid(row=0, column=0, columnspan=2)
+		scaleALbl = Label(scaleCOMCalFrame, text = 'A: ')
+		scaleALbl.grid(row=1, column = 0)
+		scaleBLbl = Label(scaleCOMCalFrame, text = 'B: ')
+		scaleBLbl.grid(row=2, column = 0)	
+		scaleCLbl = Label(scaleCOMCalFrame, text = 'C: ')
+		scaleCLbl.grid(row=3, column = 0)
+		scaleA = StringVar(cal_window)
+		scaleA.set('scaleA')
+		scaleAText = ttk.Entry(scaleCOMCalFrame, textvariable = scaleA)
+		scaleAText.grid(row=1, column=1)
+		scaleB = StringVar(cal_window)
+		scaleB.set('scaleB')
+		scaleBText = ttk.Entry(scaleCOMCalFrame, textvariable = scaleB)
+		scaleBText.grid(row=2, column=1)
+		scaleC = StringVar(cal_window)
+		scaleC.set('scaleC')
+		scaleCText = ttk.Entry(scaleCOMCalFrame, textvariable = scaleC)
+		scaleCText.grid(row=3, column=1)
 
-		ax.mouse_init()
+		finishCOMCalButton = ttk.Button(comFrame, text = 'Calibrate Load Cells')
+		finishCOMCalButton.grid(row=1,column=4, sticky='nsew')
+
+
+
+
 
 
 	def save():
@@ -944,3 +980,4 @@ class calMode(object):
 # comMode.calcCOM()
 # if __name__=='__main__':
 mergedBuild()
+# calMode()
