@@ -216,7 +216,10 @@ class mergedBuild(object):
 		root.resizable(0,0) 
 		# print ('height:',root.winfo_height())
 		# print ('width:',root.winfo_width())
+		w = root.winfo_width()
+		h = root.winfo_height()
 
+		root.geometry('%dx%d+%d+%d' % (w, h, 50, 50))
 		# Activate the window.
 		root.mainloop()
 
