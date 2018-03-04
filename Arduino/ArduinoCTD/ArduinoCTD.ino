@@ -13,10 +13,14 @@ state_enum state = STARTUP;
 action_enum action;
 action_enum prevAction;
 
-#define LOADCELLA A0
-#define LOADCELLB A1
-#define LOADCELLC A2
-#define tachometer A3
+#define CELLA_DATA 7
+#define CELLA_CLK 6
+#define CELLB_DATA 5
+#define CELLB_CLK 4
+#define CELLC_DATA 3
+#define CELLC_CLK 2
+#define SENSOR1 A0
+#define SENSOR2 A1
 #define led 10
 
 float loadCellA;
@@ -26,14 +30,19 @@ float oscillations;
 
 
 void setup() {
-  cellA.begin(7,6); // PIN7 is DT, PIN6 is SCK
-  cellB.begin(5,4); // PIN5 is DT, PIN4 is SCK
-  cellC.begin(3,2); // PIN3 is DT, PIN2 is SCK
+  /* COM SETUP */
+  cellA.begin(CELLA_DATA, CELLA_CLK); // PIN7 is DT, PIN6 is SCK
+  cellB.begin(CELLB_DATA, CELLB_CLK); // PIN5 is DT, PIN4 is SCK
+  cellC.begin(CELLC_DATA, CELLC_CLK); // PIN3 is DT, PIN2 is SCK
   cellA.set_scale(452.f);
   cellB.set_scale(442.f);
   cellC.set_scale(453.5f);
   delay(2000);
   tareCells();
+
+  /* MOI SETUP */
+  pinMode(SENSOR1, INPUT);
+  pinMode(SENSOR2, INPUT);
 
   Serial.begin(9600);
 }
@@ -264,7 +273,49 @@ void moi_measure(int orientation){
   /* TALLY NUMBER OF OSCILLATIONS */
   /* AFTER A CERTAIN OSCILLATION, STOP TIMING */
   /* SERIAL PRINT TOTAL TIME AND AVERAGE PERIOD */
-  delay(3000);
+  unsigned long start_time = 0;
+  unsigned long end_time = 0;
+  int counter = -1;
+  int direction = 0; // 0 for CW, 1 for CCW
+  int directionChanged = 0;
+  
+  while(counter < 6){
+
+    int measure1 = analogRead(SENSOR1);
+    int measure2 = analogRead(SENSOR2);
+
+    // clockwise
+    if(measure1 - measure2 > 500){
+      if(direction == 1){
+        directionChanged = 1;
+      }
+      direction = 0;
+    }
+    // anti-clockwise
+    else if(measure2 - measure1 > 500){
+      if(direction == 0){
+        directionChanged = 1;
+      }
+      direction = 1;
+    }
+
+    if(directionChanged){
+      counter++;
+      directionChanged = 0;
+    }
+
+    if(analogRead(SENSOR1) > 512 && counter == -1){
+      start_time = millis();
+      counter = 0;
+    }  
+    if(analogRead(SENSOR1) < )
+  }
+  unsigned end_time = millis();
+  int period = (end_time - start_time)/(counter/2);
+
+  Serial.print("Period (ms): ");
+  Serial.println(period);
+
   oscillations = 10;
   Serial.print("OSC: ");
   Serial.println(oscillations);
