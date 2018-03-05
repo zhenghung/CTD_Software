@@ -2,6 +2,15 @@ from tkinter import Tk, Button, Label, Frame, StringVar, messagebox, ttk, filedi
 import time
 import serial
 import os
+import csv	
+import matplotlib
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+import numpy as np
+from itertools import product, combinations
+from matplotlib.collections import LineCollection
 
 ser = 0
 BOLD = ('Helvetica', '24', 'bold')
@@ -82,7 +91,7 @@ class osOperations:
 		osOperations.writeCSV(dir_name, comData, mode)
 
 	def writeCSV(dir_name, data, mode):	 
-		import csv
+
 		if(mode == 'COM'):
 			fileName = '\\COM_Measurements.csv'
 		else:
@@ -242,10 +251,7 @@ CENTER OF MASS MODE
 ==========================================================================================================================================================
 """
 
-import matplotlib
-matplotlib.use('TkAgg')
-import numpy
-import matplotlib.pyplot
+
 
 class comMode():
 
@@ -499,13 +505,7 @@ class comMode():
 			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (25, 25, 0), com[0], com[1], com[2])
 
 	def plot_cuboid(graphFrame, center, size, comx,comy,comz):
-		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-		from matplotlib.figure import Figure
-		from mpl_toolkits.mplot3d import Axes3D
-		import matplotlib.pyplot as plt
-		import numpy as np
-		from itertools import product, combinations
-		from matplotlib.collections import LineCollection
+
 		global canvas, com_point, ax
 
 		ox, oy, oz = center
@@ -763,9 +763,6 @@ class moiMode():
 		
 
 	def plot(graphFrame):
-		from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-		import matplotlib.backends.backend_tkagg as tkagg
-		from matplotlib.figure import Figure
 
 		fig = Figure()
 		ax = fig.add_subplot(111)
@@ -776,7 +773,7 @@ class moiMode():
 		canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
 
 		# canvas is your canvas, and root is your parent (Frame, TopLevel, Tk instance etc.)
-		tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
+		matplotlib.backends.backend_tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
 
 """
 ==========================================================================================================================================================
