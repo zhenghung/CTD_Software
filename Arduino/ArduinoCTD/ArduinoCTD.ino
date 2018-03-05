@@ -311,7 +311,7 @@ void moi_measure(int orientation){
     if(analogRead(SENSOR1) < )
   }
   unsigned end_time = millis();
-  int period = (end_time - start_time)/(counter/2);
+  long period = (end_time - start_time)/(counter/2);
 
   Serial.print("Period (ms): ");
   Serial.println(period);
