@@ -11,8 +11,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from itertools import product, combinations
 from matplotlib.collections import LineCollection
+import matplotlib.animation as animation
+global  count, ser
+count = 0
 
-ser = 0
+
+
 BOLD = ('Helvetica', '24', 'bold')
 default_cs = '3U'
 
@@ -42,7 +46,7 @@ class arduino(object):
 			connect.grid(row=0, column=1)	
 			ardStatus.set('Arduino Connection attempt failed, ensure USB port is connected and try again')
 
-	# Wait for Serial String output (Timeouts after 3 seconds)
+	# Wait for specific Serial String output (Timeouts after 3 seconds)
 	def waitingOnSerial(serialOutput):
 		timeout = time.time() + 10	# 3 seconds timeout
 		while True:
@@ -80,7 +84,6 @@ class arduino(object):
 				ardStatus.set(ardStatus.get() + '\nTIMEOUT')
 				return 'No Data Timeout'
 
-
 # --------------------------
 class osOperations:
 	def exportCSV(mode):
@@ -91,7 +94,6 @@ class osOperations:
 		osOperations.writeCSV(dir_name, comData, mode)
 
 	def writeCSV(dir_name, data, mode):	 
-
 		if(mode == 'COM'):
 			fileName = '\\COM_Measurements.csv'
 		else:
@@ -154,6 +156,7 @@ class mergedBuild(object):
 		arduinoButton.grid(row=0, column=0, padx=5, sticky='nsew')
 
 
+
 		# CubeSat Config selection
 		cs_text = Label(controlFrame, text='CubeSat Config:')
 		cs_text.grid(row=1, column=0)
@@ -194,9 +197,12 @@ class mergedBuild(object):
 		tabsView.add(moiFrame, text='Moment of Inertia')
 		tabsView.pack(side='top', fill='both', padx=0, pady=5)
 
+
 		# Setup COM and MOI Mode
-		comMode.com_start(comFrame)
-		moiMode.moi_start(moiFrame)
+		com = comMode()
+		com.com_start(comFrame)
+		moi = moiMode()
+		moi.moi_start(moiFrame)
 
 		# Setup Buttons, disable most for STARTUP MODE
 		allButtons = (
@@ -255,7 +261,7 @@ CENTER OF MASS MODE
 
 class comMode():
 
-	def com_start(com_window):
+	def com_start(self, com_window):
 		global com_status_str, com_result_str, comGraphFrame, comResultFrame
 		global comStand, comResetButton, comMeasureButton1, comMeasureButton2, comFinishButton, comTareButton
 		# Frame Containers
@@ -608,9 +614,10 @@ MOMENT OF INERTIA MODE
 
 class moiMode():
 
-	def moi_start(moi_window):
+	def moi_start(self, moi_window):
 		global moi_status_str, moi_result_str
 		global moiStand, moiResetButton, moiMeasureButton1, moiMeasureButton2, moiMeasureButton3, moiFinishButton
+		global moiGraphFrame, moiResultFrame
 		# Frame Containers
 		titleFrame = Frame(moi_window)
 		titleFrame.grid(row=0, column=0)	
@@ -620,8 +627,8 @@ class moiMode():
 		# SubFrame Containers
 		controlFrame = Frame(mainUIFrame, borderwidth=0, relief='groove')
 		controlFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		resultFrame = Frame(mainUIFrame, borderwidth=0, relief='groove')
-		resultFrame.grid(row=0, column=1, sticky='nsew', padx=10)
+		moiResultFrame = Frame(mainUIFrame, borderwidth=0, relief='groove')
+		moiResultFrame.grid(row=0, column=1, sticky='nsew', padx=10)
 
 		# Frames
 		instructionFrame = Frame(controlFrame, borderwidth=3, relief='groove')
@@ -630,9 +637,9 @@ class moiMode():
 		buttonFrame.grid(row=1, column=0, sticky='nsew', padx=10)
 		stsFrame = Frame(controlFrame, borderwidth=3, relief='groove')
 		stsFrame.grid(row=2, column=0, sticky='sew', padx=10) 
-		graphFrame = Frame(resultFrame, borderwidth=3, relief='groove')
-		graphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		printFrame = Frame(resultFrame, borderwidth=3, relief='groove')
+		moiGraphFrame = Frame(moiResultFrame, borderwidth=3, relief='groove')
+		moiGraphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
+		printFrame = Frame(moiResultFrame, borderwidth=3, relief='groove')
 		printFrame.grid(row=1, column=0, sticky='nsew', padx=10)
 
 		moi_label = Label(titleFrame, text="Moment of Inertia Mode", font='Helvetica 16 bold')
@@ -676,7 +683,7 @@ class moiMode():
 	
 
 		# Buttons Layout
-		moiMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=moiMode.measure1)
+		moiMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=self.measure1)
 		moiMeasureButton1.pack(fill='both')
 		moiMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=moiMode.measure2)
 		moiMeasureButton2.pack(fill='both')
@@ -686,7 +693,7 @@ class moiMode():
 		moiFinishButton.pack(fill='both')
 
 		# Plot Graph
-		moiMode.plot(graphFrame)
+		self.plot(moiGraphFrame, 0)
 
 		# Results Textbox
 		resultlbl = Label(printFrame, text='Results')
@@ -711,6 +718,7 @@ class moiMode():
 		result = messagebox.askyesno("Reset?", "Are You Sure?\nAll data will be lost", icon='warning')
 		if result == True:
 			arduino.serialPrint('0')
+			count = 0
 			if(arduino.waitingOnSerial('RESET')):
 				ardStatus.set('MOI Standby Mode')
 				moi_status_str.set('Rotate plate to begin measurement 1')
@@ -722,7 +730,8 @@ class moiMode():
 			ardStatus.set('TIMEOUT')
 
 		
-	def measure1():
+	def measure1(self):
+		global moiGraphFrame
 		arduino.serialPrint('S')
 		if(arduino.waitingOnSerial('BEGIN_MOI1')):
 			ardStatus.set('MOI Measure 1 State')
@@ -730,8 +739,9 @@ class moiMode():
 
 			buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton2])
 
-			oscillations = arduino.serialRead()
-
+			self.plot(moiGraphFrame, 1)
+			# oscillations = arduino.serialRead()
+			oscillations = moiy
 			print(oscillations)
 
 			moi_status_str.set('Orientation 1 Measurement Done')
@@ -762,18 +772,51 @@ class moiMode():
 			buttonInteraction.buttonRefresh([moiResetButton, comStand])
 		
 
-	def plot(graphFrame):
+	def plot(self,graphFrame, dataPlot):
+		global  moiFig, canvas, moiy, moiy2
 
-		fig = Figure()
-		ax = fig.add_subplot(111)
-		line, = ax.plot(range(10))
+		moiy = []
+		moiy2 = []
+		moiFig = plt.figure()
+		ax = moiFig.add_subplot(1,1,1)
+		ax.set_xlim([0, 50])
+		ax.set_ylim([0, 1023])
 
-		canvas = FigureCanvasTkAgg(fig,master=graphFrame)
-		canvas.show()
-		canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
+		canvas = FigureCanvasTkAgg(moiFig, master=moiGraphFrame)
+		canvas.get_tk_widget().grid(row =0 , column=0)
 
-		# canvas is your canvas, and root is your parent (Frame, TopLevel, Tk instance etc.)
-		matplotlib.backends.backend_tkagg.NavigationToolbar2TkAgg(canvas, graphFrame)
+
+		def update(i):
+			global incre
+
+			yi = arduino.serialRead()
+			yi = [float(val) for val in yi.split()]
+			moiy.append(yi[0])
+			moiy2.append(yi[1])
+			x = range(len(moiy))
+			if(len(moiy) >= 50):
+				incre+=1
+			else:
+				incre = 0
+
+			ax.clear()
+			ax.set_xlim([0, 199])
+			ax.set_ylim([-5, 1030])
+			ax.plot(x, moiy)
+			ax.plot(x, moiy2)
+
+			print (i, ': ', yi)
+			if(i==199):
+				return
+		
+		if(dataPlot!=0):
+			self.a = animation.FuncAnimation(moiFig, update, frames = 200, repeat=False, interval = 1, blit=False)
+		
+
+		moiFig.canvas.draw()
+		return
+
+
 
 """
 ==========================================================================================================================================================
@@ -981,3 +1024,5 @@ class calMode(object):
 # if __name__=='__main__':
 mergedBuild()
 # calMode()
+
+
