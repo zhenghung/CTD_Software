@@ -37,8 +37,8 @@ void setup() {
   cellA.set_scale(452.f);
   cellB.set_scale(442.f);
   cellC.set_scale(453.5f);
-  delay(2000);
-  tareCells();
+  // delay(2000);
+  // tareCells();
 
   /* MOI SETUP */
   pinMode(SENSOR1, INPUT);
@@ -58,7 +58,7 @@ void state_machine(uint8_t action){
       if(firstLaunch){
         Serial.println("STARTUP");
         firstLaunch = false;
-        tareCells();
+        // tareCells();
       }
       if(action == CHGCOM){
         state = COM_STANDBY;
@@ -66,9 +66,10 @@ void state_machine(uint8_t action){
         tareCells();
         prevAction = CHGCOM;
       }
-      if(action == CHGMOI){
+      else if(action == CHGMOI){
         state = MOI_STANDBY;
         Serial.println("CHGMOI");
+        prevAction = CHGMOI;
       }
       break;
     case COM_STANDBY:
@@ -269,10 +270,12 @@ void com_measure(int orientation){
   Serial.println(cellC.get_units(10), 2);
 }
 void moi_measure(int orientation){
+  
   /* START TIMER AS SOON AS PIN VALUE CHANGES - BEGIN OSCILLATION*/
   /* TALLY NUMBER OF OSCILLATIONS */
   /* AFTER A CERTAIN OSCILLATION, STOP TIMING */
   /* SERIAL PRINT TOTAL TIME AND AVERAGE PERIOD */
+  /*
   unsigned long start_time = 0;
   unsigned long end_time = 0;
   int counter = -1;
@@ -319,6 +322,23 @@ void moi_measure(int orientation){
   oscillations = 10;
   Serial.print("OSC: ");
   Serial.println(oscillations);
+  */
+
+  int counter = 0;
+  while(counter < 201){
+    int measure1 = analogRead(SENSOR1);
+    int measure2 = analogRead(SENSOR2);
+
+    Serial.print(measure1);
+    Serial.print(" ");
+    Serial.print(measure2);
+    Serial.print("\n");
+    delay(100);
+
+    counter++;
+  }
+
+
 }
 
 void tareCells(){
