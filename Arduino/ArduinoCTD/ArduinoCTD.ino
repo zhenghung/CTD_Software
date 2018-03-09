@@ -323,9 +323,9 @@ void moi_measure(int orientation){
   Serial.print("OSC: ");
   Serial.println(oscillations);
   */
+  unsigned long start_time = millis();
 
-  int counter = 0;
-  while(counter < 201){
+  for(int counter = 0; counter<201; counter++){
     int measure1 = analogRead(SENSOR1);
     int measure2 = analogRead(SENSOR2);
 
@@ -337,6 +337,11 @@ void moi_measure(int orientation){
 
     counter++;
   }
+
+  unsigned long end_time = millis();
+  unsigned long duration = end_time-start_time;
+  Serial.print("time: ");
+  Serial.println(duration);
 
 
 }
