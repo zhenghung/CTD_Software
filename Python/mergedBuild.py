@@ -1,6 +1,7 @@
 from tkinter import Tk, Button, Label, Frame, StringVar, messagebox, ttk, filedialog
 import time
 import serial
+import serial.tools.list_ports
 import os
 import csv	
 import matplotlib
@@ -26,7 +27,10 @@ class arduino(object):
 	def serialConnect(controlFrame, connect):
 		global ser
 		try:
-			ser = serial.Serial('COM3', 9600)
+			# Auto select first serialport (unplug other serialport connections)
+			list = serial.tools.list_ports.comports()
+			comstr = list[0]
+			ser = serial.Serial(str(comstr[0]), 9600)
 			connect.destroy()
 			connect = Label(controlFrame, text="Success", font='Calibri 12 bold', fg='green', width=7)
 			connect.grid(row=0, column=1)
@@ -37,7 +41,7 @@ class arduino(object):
 
 				buttonInteraction.buttonRefresh([comStand, moiStand])
 
-				time.sleep(2)  #at least wait for 2s 
+				time.sleep(2)  #at least wait for 2s for Arduino to complete  bootup phase
 	
 
 		except serial.SerialException: 
@@ -244,7 +248,7 @@ class mergedBuild(object):
 		comGraphFrame.destroy()
 		comGraphFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
 		comGraphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-		comMode.drawGraphs(comGraphFrame,[100,100,100])
+		comMode.drawGraphs(comGraphFrame,[100,100,100], 'done')
 
 		if(cs_config.get()=='TEST'):
 			com_status_str.set('Place Test Block on Plate')
@@ -330,9 +334,9 @@ class comMode():
 		exportButton = ttk.Button(stsFrame, text='Export to CSV', command=lambda: osOperations.exportCSV('COM'))
 		exportButton.grid(row=2, padx=10, pady=5, sticky='nsew')
 
-		comMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=comMode.measure1)
+		comMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure (X-axis)', command=comMode.measure1)
 		comMeasureButton1.pack(fill='both')
-		comMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=comMode.measure2)
+		comMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure (Y-axis)', command=comMode.measure2)
 		comMeasureButton2.pack(fill='both')
 
 		comFinishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=lambda: comMode.finish(comGraphFrame, comResultFrame))
@@ -340,11 +344,11 @@ class comMode():
 
 		# Plot 3D axes with invalid COM point
 		if(cs_config.get()=='3U'):
-			comMode.drawGraphs(comGraphFrame, [100,100,0])
+			comMode.drawGraphs(comGraphFrame, [100,100,0],'done')
 		elif (cs_config.get()=='1U'):
-			comMode.drawGraphs(comGraphFrame, [100,100,0])
+			comMode.drawGraphs(comGraphFrame, [100,100,0],'done')
 		elif (cs_config.get()=='TEST'):
-			comMode.drawGraphs(comGraphFrame, [100,100,0]) 
+			comMode.drawGraphs(comGraphFrame, [100,100,0],'done') 
 
 
 		# Results Textbox
@@ -417,7 +421,7 @@ class comMode():
 					comGraphFrame.destroy()
 					comGraphFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
 					comGraphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-					comMode.drawGraphs(comGraphFrame, [comCoord[0],comCoord[1],0])
+					comMode.drawGraphs(comGraphFrame, [comCoord[0],comCoord[1],0], 'x')
 
 					com_result_str.set(com_result_str.get()+'X: '+str(comCoord[0])+' ; Y: '+str(comCoord[1])+'\n')
 
@@ -458,7 +462,7 @@ class comMode():
 			comGraphFrame.destroy()
 			comGraphFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
 			comGraphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-			comMode.drawGraphs(comGraphFrame, [comCoord[0],comCoord[1],0])
+			comMode.drawGraphs(comGraphFrame, [comCoord[0],comCoord[1],0], 'done')
 
 			buttonInteraction.buttonRefresh([comResetButton, moiStand])
 			
@@ -500,17 +504,17 @@ class comMode():
 		# fromO_x2 = fromA_x2
 		# fromO_y2 = (D/2) + fromA_y2
 
-	def drawGraphs(graphFrame, com):
+	def drawGraphs(graphFrame, com, rotation):
 		if cs_config.get()=='3U':
-			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (10, 10, 30), com[0], com[1], com[2])
+			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (10, 10, 30), com[0], com[1], com[2], rotation)
 		elif cs_config.get()=='2U':
-			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (10, 10, 20), com[0], com[1], com[2])
+			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (10, 10, 20), com[0], com[1], com[2], rotation)
 		elif cs_config.get()=='1U':
-			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (10, 10, 10), com[0], com[1], com[2])
+			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (10, 10, 10), com[0], com[1], com[2], rotation)
 		elif cs_config.get()=='TEST':
-			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (25, 25, 0), com[0], com[1], com[2])
+			comMode.plot_cuboid(comGraphFrame, [0, 0, 0], (25, 25, 0), com[0], com[1], com[2], rotation)
 
-	def plot_cuboid(graphFrame, center, size, comx,comy,comz):
+	def plot_cuboid(graphFrame, center, size, comx,comy,comz, rotation):
 
 		global canvas, com_point, ax
 
@@ -595,7 +599,19 @@ class comMode():
 			ax.plot(CA_x, CA_y, 0, label='CA', color='g')
 
 	    # draw a point representing the COM
-		com_point = ax.scatter(comx, comy, comz, color="r", s=10)
+		if(rotation=='x'):
+			#plot line 
+			line_x = np.linspace(0,100,50)
+			ax.plot(line_x, comy, comz, label='YZ Plot', color='r')
+
+		elif(rotation=='y'):
+			line_x = np.linspace(0,100,50)
+			line_y = np.linspace(0,100,50)
+			ax.plot(line_x, comy, comz, label='YZ Plot', color='r')
+			ax.plot(comx, line_y, comz, label='XZ Plot', color='r')
+			
+		elif(rotation=='done'):	
+			com_point = ax.scatter(comx, comy, comz, color="r", s=10)
 
 		canvas = FigureCanvasTkAgg(fig, master=comGraphFrame)
 		canvas.show()
@@ -685,9 +701,9 @@ class moiMode():
 		# Buttons Layout
 		moiMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=self.measure1)
 		moiMeasureButton1.pack(fill='both')
-		moiMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=moiMode.measure2)
+		moiMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=self.measure2)
 		moiMeasureButton2.pack(fill='both')
-		moiMeasureButton3 = ttk.Button(buttonFrame,text='Orientation 3 Measure', command=moiMode.measure3)
+		moiMeasureButton3 = ttk.Button(buttonFrame,text='Orientation 3 Measure', command=self.measure3)
 		moiMeasureButton3.pack(fill='both')
 		moiFinishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=moiMode.finish)
 		moiFinishButton.pack(fill='both')
@@ -737,32 +753,34 @@ class moiMode():
 			ardStatus.set('MOI Measure 1 State')
 			moi_status_str.set('Rotate plate to begin measurement 1')
 
-			buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton2])
+			buttonInteraction.buttonRefresh([])
 
 			self.plot(moiGraphFrame, 1)
+			
 			# oscillations = arduino.serialRead()
-			oscillations = moiy
+			oscillations = moiy1
 			print(oscillations)
 
 			moi_status_str.set('Orientation 1 Measurement Done')
 			moi_result_str.set(oscillations)
 
-	def measure2():
+	def measure2(self):
 		arduino.serialPrint('D')
 		if(arduino.waitingOnSerial('BEGIN_MOI2')):
 			ardStatus.set('MOI Measure 2 State')
 			moi_status_str.set('Rotate plate to begin measurement 2')
+			buttonInteraction.buttonRefresh([])
 
-			buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton3])
+			self.plot(moiGraphFrame, 2)
 
-	def measure3():
+	def measure3(self):
 		arduino.serialPrint('F')
 		if(arduino.waitingOnSerial('BEGIN_MOI3')):
 			ardStatus.set('MOI Measure 3 State')
 			moi_status_str.set('Rotate plate to begin measurement 3')
+			buttonInteraction.buttonRefresh([])
 
-			buttonInteraction.buttonRefresh([moiResetButton, moiFinishButton])
-
+			self.plot(moiGraphFrame, 3)
 	def finish():
 		arduino.serialPrint('G')
 		if(arduino.waitingOnSerial('MOI_DONE')):
@@ -773,9 +791,9 @@ class moiMode():
 		
 
 	def plot(self,graphFrame, dataPlot):
-		global  moiFig, canvas, moiy, moiy2
+		global  moiFig, canvas, moiy1, moiy2
 
-		moiy = []
+		moiy1 = []
 		moiy2 = []
 		moiFig = plt.figure()
 		ax = moiFig.add_subplot(1,1,1)
@@ -787,26 +805,35 @@ class moiMode():
 
 
 		def update(i):
-			global incre
+			global moiGraphShift
 
 			yi = arduino.serialRead()
 			yi = [float(val) for val in yi.split()]
-			moiy.append(yi[0])
+			moiy1.append(yi[0])
 			moiy2.append(yi[1])
-			x = range(len(moiy))
-			if(len(moiy) >= 50):
-				incre+=1
+			x = range(len(moiy1))
+
+			if(len(moiy1) >= 199):
+				moiGraphShift+=1
 			else:
-				incre = 0
+				moiGraphShift = 0
 
 			ax.clear()
-			ax.set_xlim([0, 199])
+			ax.set_xlim([moiGraphShift, 199+moiGraphShift])
 			ax.set_ylim([-5, 1030])
-			ax.plot(x, moiy)
-			ax.plot(x, moiy2)
+			ax.grid(color = 'gray', linestyle='-', linewidth=0.2)
+			ax.plot(x, moiy1, '-b', label='SENSOR1')
+			ax.plot(x, moiy2, '-r', label='SENSOR2')
+			ax.legend(loc='upper right')
 
 			print (i, ': ', yi)
 			if(i==199):
+				if(dataPlot == 1):
+					buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton2])
+				elif(dataPlot == 2):
+					buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton3])
+				elif(dataPlot == 3):
+					buttonInteraction.buttonRefresh([moiResetButton, moiFinishButton])
 				return
 		
 		if(dataPlot!=0):
