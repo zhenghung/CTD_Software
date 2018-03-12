@@ -683,7 +683,7 @@ class moiMode():
 			'8. Reorientate and fix CubeSat in orientation 3\n'
 			'9. Begin measurement for orientation 3\n'
 			'10. Wait for measurement to complete\n'
-			'11. Click finish to obtain final COM\n',justify='left')
+			'11. Click finish to obtain final MOI\n',justify='left')
 		cs_label.pack(padx=10)
 
 		#Status Label
@@ -1029,6 +1029,9 @@ class calMode(object):
 		finishCOMCalButton.grid(row=1,column=4, sticky='nsew')
 
 
+	def moiFrameLayout(self):
+		# MOI Section
+		global period1, period2, period3
 
 
 
@@ -1048,7 +1051,7 @@ class calMode(object):
 
 
 # if __name__=='__main__':
-# mergedBuild()
-calMode()
+mergedBuild()
+# calMode()
 
 
