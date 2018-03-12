@@ -169,7 +169,7 @@ class mergedBuild(object):
 		w = ttk.OptionMenu(controlFrame, cs_config, '', "1U", "2U", "3U", "TEST", command=mergedBuild.refreshGraph)
 		w.grid(row = 1, column = 1, sticky='nsew')
 
-		
+
 		# Calibration Button
 		calButton = ttk.Button(controlFrame, command = calMode, text="Calibrate Measurements")
 		calButton.grid(row=2, columnspan=2, sticky='nsew')
@@ -930,7 +930,7 @@ class calMode(object):
 		status_label.pack(fill='both')
 
 		# COM Section
-		calMode.comFrameLayout(comFrame, beginCOMCalFrame, weightCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame)
+		self.comFrameLayout(comFrame, beginCOMCalFrame, weightCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame)
 
 		# MOI Section
 		moilbl = Label(moiFrame, text='Moment of Inertia')
@@ -938,7 +938,7 @@ class calMode(object):
 
 
 
-		saveButton = ttk.Button(cal_window, text='Save and Quit', command=calMode.save)
+		saveButton = ttk.Button(cal_window, text='Save and Quit', command=self.save)
 		saveButton.grid(row=5, column=0, sticky='nse', padx=10, pady=10)
 
 		# The window is not resizable. 
@@ -948,7 +948,7 @@ class calMode(object):
 		cal_window.mainloop()
 
 
-	def comFrameLayout(comFrame, beginCOMCalFrame, weightCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame):
+	def comFrameLayout(self, comFrame, beginCOMCalFrame, weightCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame):
 		# COM Section
 		global weightA, weightB, weightC, readA, readB, readC, scaleA, scaleB, scaleC
 
@@ -1033,7 +1033,7 @@ class calMode(object):
 
 
 
-	def save():
+	def save(self):
 		cal_window.destroy()
 
 """
@@ -1047,9 +1047,8 @@ class calMode(object):
 
 
 
-# comMode.calcCOM()
 # if __name__=='__main__':
-mergedBuild()
-# calMode()
+# mergedBuild()
+calMode()
 
 
