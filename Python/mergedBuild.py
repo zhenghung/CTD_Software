@@ -10,6 +10,7 @@ from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 from itertools import product, combinations
 from matplotlib.collections import LineCollection
 import matplotlib.animation as animation
@@ -389,6 +390,7 @@ class comMode():
 
 
 	def measure1():
+		# YZ coordinates
 		global loadCell1A, loadCell1B, loadCell1C, graphFrame
 		arduino.serialPrint('W')
 		if(arduino.waitingOnSerial('BEGIN_COM1')):
@@ -426,6 +428,8 @@ class comMode():
 					com_result_str.set(com_result_str.get()+'X: '+str(comCoord[0])+' ; Y: '+str(comCoord[1])+'\n')
 
 	def measure2():
+		# XZ coordinates
+		global loadCell2A, loadCell2B, loadCell2C, graphFrame
 		arduino.serialPrint('E')
 		if(arduino.waitingOnSerial('BEGIN_COM2')):
 			ardStatus.set('COM Measure 2 State')	
@@ -455,54 +459,80 @@ class comMode():
 		if(arduino.waitingOnSerial('COM_DONE')):
 			ardStatus.set('COM Standby Mode')			
 			com_status_str.set('Computing Results...\n')
-
-			# comCoord = comMode.calcCOM()
-			comCoord = [0,0]
+			
+			comCoord = comMode.calcCOM()
 
 			comGraphFrame.destroy()
 			comGraphFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
 			comGraphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-			comMode.drawGraphs(comGraphFrame, [comCoord[0],comCoord[1],0], 'done')
+			comMode.drawGraphs(comGraphFrame, [comCoord[0],comCoord[1],comCoord[2]], 'done')
+
+			com_result_str.set(com_result_str.get()+'X: '+str(comCoord[0])+' ; Y: '+str(comCoord[1])+' ; Z: '+str(comCoord[2])+'\n')
 
 			buttonInteraction.buttonRefresh([comResetButton, moiStand])
 			
 	def calcCOM():
 		# COM Preset Values
-		D=25
-		L=D*0.866 
+		CS_h = 34.5
+		CS_w = 10
+		D = 14
+		L = D*math.sin(math.pi/3) 
+		r = (D/2)/math.sin(math.pi/3)
+		theta = math.radians(43.17)
 
-		# A is placed at (0, 5)
-		# B is placed at (8.7, 0)
-		# C is placed at (8.7, 10)
+		# In Frame 1 (Triangle Frame)
+		# A is placed at (0, 8.08)
+		# B is placed at (-7, -4.04)
+		# C is placed at (7, -4.04)
 
 		# Only for TESTING purposes
-		# loadCell1A = 500
-		# loadCell1B = 500
-		# loadCell1C = 500
-		# loadCell2A = 500
-		# loadCell2B = 500
-		# loadCell2C = 500
+		loadCell1A = 500
+		loadCell1B = 500
+		loadCell1C = 1500 - loadCell1B - loadCell1A
+		loadCell2A = 500
+		loadCell2B = 500
+		loadCell2C = 1500 - loadCell2A - loadCell2B
 
 		W = loadCell1A+loadCell1B+loadCell1C
 
-		# Orientation 1 (default frame 0)
-		fromA_x1 = (loadCell1B+loadCell1C)*L/W		
+		# Orientation 1 (default frame 1)
+		fromA_z1 = (loadCell1B+loadCell1C)*L/W		
 		fromA_y1 = (loadCell1C-loadCell1B)*D/(2*W)
 
-		fromO_x1 = fromA_x1
-		fromO_y1 = (D/2) + fromA_y1
+		p1 = np.matrix([[0],[fromA_y1],[r - fromA_z1]])
 
-		print(fromO_x1)
-		print(fromO_y1)
+		# Rotate to frame 0 (rotate about x)
+		O10 = np.matrix([[0],[CS_w/2],[CS_h/2]])
+		cos1 = math.cos((math.pi/2)-theta)
+		sin1 = math.sin((math.pi/2)-theta)
+		R10 = np.matrix([[1,0,0],[0,cos1,-sin1],[0,sin1,cos1]])
+		p0_1 = R10*p1 + O10
 
-		return [fromO_x1, fromO_y1]
+		# Orientation 2 (Rotate about z axis 90 degrees)
+		fromA_x2 = (loadCell2B+loadCell2C)*L/W		
+		fromA_z2 = (loadCell2C-loadCell2B)*D/(2*W) 
 
-		# # Orientation 2 (Rotate about z axis 90 degrees)
-		# fromA_x2 = (loadCell2B+loadCell2C)*L/W		
-		# fromA_y2 = (loadCell2C-loadCell2B)*D/(2*W) 
+		p2 = np.matrix([[r - fromA_x2],[0],[fromA_z2]])
 
-		# fromO_x2 = fromA_x2
-		# fromO_y2 = (D/2) + fromA_y2
+		# Rotate to frame 0 (rotate about y)
+		O20 = np.matrix([[CS_w/2],[0],[CS_h/2]])
+		cos2 = math.cos(-theta)
+		sin2 = math.sin(-theta)
+		R20 = np.matrix([[cos2,0,sin2],[0,1,0],[-sin2,0,cos2]])
+		p0_2 = R20*p2 + O20
+		
+		# Average to z values 
+		p0_z = (float(p0_2[2]) + float(p0_1[2]))/2
+
+		print('O1z: ',float(p0_1[2]))
+		print('O2z: ',float(p0_2[2]))
+
+		p0 = np.matrix([[float(p0_2[0])],[float(p0_1[1])],[p0_z]])
+
+		print(p0)
+
+		return [float(p0[0]), float(p0[1]), float(p0[2])]
+
 
 	def drawGraphs(graphFrame, com, rotation):
 		if cs_config.get()=='3U':
@@ -620,7 +650,6 @@ class comMode():
 		# canvas is your canvas, and root is your parent (Frame, TopLevel, Tk instance etc.)
 		matplotlib.backends.backend_tkagg.NavigationToolbar2TkAgg(canvas, comGraphFrame)
 		ax.mouse_init()
-
 
 """
 ==========================================================================================================================================================
@@ -837,7 +866,7 @@ class moiMode():
 				return
 		
 		if(dataPlot!=0):
-			self.a = animation.FuncAnimation(moiFig, update, frames = 200, repeat=False, interval = 1, blit=False)
+			self.a = animation.FuncAnimation(moiFig, update, repeat=False, interval = 1, blit=False)
 		
 
 		moiFig.canvas.draw()
