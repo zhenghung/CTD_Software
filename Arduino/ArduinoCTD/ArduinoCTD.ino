@@ -324,8 +324,57 @@ void moi_measure(int orientation){
   Serial.println(oscillations);
   */
   unsigned long start_time = millis();
+  
+  int oscCount = 0; // Count for every 2 passCount;
 
-  for(int counter = 0; counter<201; counter++){
+  while(oscCount<10){
+    /* CODE TO CHECK FOR ROTATION DIRECTION */
+    int direction = 1; // CW
+    int directionChanged = 0; // 0 for unchanged, 1 for changed
+    int passCount = 0; // Count for everytime directionChanged
+
+    int measure1 = analogRead(SENSOR1); 
+    int measure2 = analogRead(SENSOR2);
+
+    Serial.print(measure1);
+    Serial.print(" ");
+    Serial.print(measure2);
+    Serial.print("\n");
+
+    if(measure1 - measure2 > 0){
+      if(direction == -1){
+        directionChanged = 1;
+      }else{
+        directionChanged = 0;
+      }
+      direction = 1;
+
+    }else if(measure1 - measure2 < 0){
+      if(direction == 1){
+        directionChanged = 1;
+      }else{
+        directionChanged = 0;
+      }
+      direction = -1;
+    }
+
+    if(directionChanged == 1){
+      passCount++;
+      if(passCount!=0 && (passCount % 2)==0){
+        oscCount++;
+      }
+    }
+
+    /*TIMEOUT*/
+    if(Serial.available()>0){
+      if(Serial.read()=='0'){
+        break;
+      }
+    }
+    delay(100);
+  }
+
+  for(int counter = 0; counter<1000000; counter++){
     int measure1 = analogRead(SENSOR1);
     int measure2 = analogRead(SENSOR2);
 
