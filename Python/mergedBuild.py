@@ -729,11 +729,11 @@ class moiMode():
 	
 
 		# Buttons Layout
-		moiMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure', command=self.measure1)
+		moiMeasureButton1 = ttk.Button(buttonFrame,text='Orientation 1 Measure (X-axis)', command=self.measure1)
 		moiMeasureButton1.pack(fill='both')
-		moiMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure', command=self.measure2)
+		moiMeasureButton2 = ttk.Button(buttonFrame,text='Orientation 2 Measure (Y-axis)', command=self.measure2)
 		moiMeasureButton2.pack(fill='both')
-		moiMeasureButton3 = ttk.Button(buttonFrame,text='Orientation 3 Measure', command=self.measure3)
+		moiMeasureButton3 = ttk.Button(buttonFrame,text='Orientation 3 Measure (Z-axis)', command=self.measure3)
 		moiMeasureButton3.pack(fill='both')
 		moiFinishButton = ttk.Button(buttonFrame,text='Compute Measurements', command=moiMode.finish)
 		moiFinishButton.pack(fill='both')
@@ -879,7 +879,7 @@ class moiMode():
 
 		moiy1 = []
 		moiy2 = []
-		moiFig = plt.figure()
+		moiFig = plt.figure(figsize=(6.7,5.1))
 		moi_ax = moiFig.add_subplot(1,1,1)
 		moi_ax.set_xlim([0, 50])
 		moi_ax.set_ylim([0, 1023])
@@ -918,6 +918,7 @@ allButtons [array]
 10: 'moi_m2'
 11: 'moi_m3'
 12: 'moi_done'
+13: 'calButton'
 """
 class buttonInteraction():
 	def buttonRefresh(buttonsToEnable):
@@ -1007,7 +1008,7 @@ class calMode(object):
 
 	def comFrameLayout(self, comFrame, beginCOMCalFrame, weightCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame):
 		# COM Section
-		global weightA, weightB, weightC, readA, readB, readC, scaleA, scaleB, scaleC
+		global weight_CAL, weightB, weightC, readA, readB, readC, scaleA, scaleB, scaleC
 
 		comlbl = Label(comFrame, text='Center of Mass', font='Helvetica 12 bold')
 		comlbl.grid(row=0, column=0)
@@ -1021,24 +1022,12 @@ class calMode(object):
 
 		comWeightLbl = Label(weightCOMCalFrame, text = 'Weight (g)')
 		comWeightLbl.grid(row=0, column=0, columnspan=2)
-		weightALbl = Label(weightCOMCalFrame, text = 'A: ')
-		weightALbl.grid(row=1, column = 0)
-		weightBLbl = Label(weightCOMCalFrame, text = 'B: ')
-		weightBLbl.grid(row=2, column = 0)	
-		weightCLbl = Label(weightCOMCalFrame, text = 'C: ')
-		weightCLbl.grid(row=3, column = 0)
-		weightA = StringVar(cal_window)
-		weightA.set('weightA')
-		weightAText = ttk.Entry(weightCOMCalFrame, textvariable = weightA)
-		weightAText.grid(row=1, column=1)
-		weightB = StringVar(cal_window)
-		weightB.set('weightB')
-		weightBText = ttk.Entry(weightCOMCalFrame, textvariable = weightB)
-		weightBText.grid(row=2, column=1)
-		weightC = StringVar(cal_window)
-		weightC.set('weightC')
-		weightCText = ttk.Entry(weightCOMCalFrame, textvariable = weightC)
-		weightCText.grid(row=3, column=1)
+
+		weight_CAL = StringVar(cal_window)
+		weight_CAL.set('weight')
+		weightText = ttk.Entry(weightCOMCalFrame, textvariable = weight_CAL)
+		weightText.grid(row=1, column=0)
+
 
 		readFinalLbl = Label(readCOMCalFrame, text = 'Read Final Value (RAW)')
 		readFinalLbl.grid(row=0, column=0, columnspan=2)
@@ -1084,6 +1073,7 @@ class calMode(object):
 
 		finishCOMCalButton = ttk.Button(comFrame, text = 'Calibrate Load Cells')
 		finishCOMCalButton.grid(row=1,column=4, sticky='nsew')
+
 
 
 	def moiFrameLayout(self):
