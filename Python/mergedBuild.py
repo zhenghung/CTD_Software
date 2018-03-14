@@ -45,7 +45,7 @@ class arduino(object):
 				time.sleep(2)  #at least wait for 2s for Arduino to complete  bootup phase
 	
 
-		except serial.SerialException: 
+		except (serial.SerialException, IndexError) as e: 
 			connect.destroy()
 			connect = Label(controlFrame, text="Failed", font='Calibri 12 bold', fg='Red', width=7)
 			connect.grid(row=0, column=1)	
@@ -223,7 +223,8 @@ class mergedBuild(object):
 			moiMeasureButton1, 
 			moiMeasureButton2, 
 			moiMeasureButton3, 
-			moiFinishButton])
+			moiFinishButton,
+			calButton])
 
 		buttonInteraction.buttonRefresh([])
 
@@ -776,7 +777,9 @@ class moiMode():
 
 		
 	def measure1(self):
-		global moiGraphFrame
+		global moi1_sensor1, moi1_sensor2
+		moi1_sensor1 = []
+		moi1_sensor2 = []
 		arduino.serialPrint('S')
 		if(arduino.waitingOnSerial('BEGIN_MOI1')):
 			ardStatus.set('MOI Measure 1 State')
@@ -794,6 +797,9 @@ class moiMode():
 			moi_result_str.set(oscillations)
 
 	def measure2(self):
+		global moi2_sensor1, moi2_sensor2
+		moi2_sensor1 = []
+		moi2_sensor2 = []
 		arduino.serialPrint('D')
 		if(arduino.waitingOnSerial('BEGIN_MOI2')):
 			ardStatus.set('MOI Measure 2 State')
@@ -803,6 +809,9 @@ class moiMode():
 			self.plot(moiGraphFrame, 2)
 
 	def measure3(self):
+		global moi3_sensor1, moi3_sensor2
+		moi3_sensor1 = []
+		moi3_sensor1 = []
 		arduino.serialPrint('F')
 		if(arduino.waitingOnSerial('BEGIN_MOI3')):
 			ardStatus.set('MOI Measure 3 State')
@@ -817,56 +826,72 @@ class moiMode():
 			moi_status_str.set('Computing Results...')
 
 			buttonInteraction.buttonRefresh([moiResetButton, comStand])
-		
+	
+	def updatePlot(self, i, dataPlot):
+		global moiGraphShift
 
-	def plot(self,graphFrame, dataPlot):
-		global  moiFig, canvas, moiy1, moiy2
+		x_window_len = 50
+
+		yi = arduino.serialRead()
+		yi = [float(val) for val in yi.split()]
+		moiy1.append(yi[0])
+		moiy2.append(yi[1])
+		x = range(len(moiy1))
+
+		if(len(moiy1) >= x_window_len):
+			moiGraphShift+=1
+		else:
+			moiGraphShift = 0
+
+		moi_ax.clear()
+		moi_ax.set_xlim([moiGraphShift, x_window_len+moiGraphShift])
+		moi_ax.set_ylim([-5, 1030])
+		moi_ax.grid(color = 'gray', linestyle='-', linewidth=0.2)
+		moi_ax.plot(x, moiy1, '-b', label='SENSOR1')
+		moi_ax.plot(x, moiy2, '-r', label='SENSOR2')
+		moi_ax.legend(loc='upper right')
+
+		print (i, ': ', yi)
+		if(i==49):
+			arduino.serialPrint('0')
+			if(dataPlot == 1):
+				moi1_sensor1 = moiy1
+				moi1_sensor2 = moiy2
+				print("moi1_sensor1: ", moi1_sensor1)
+				print("moi1_sensor2: ", moi1_sensor2)
+				buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton2])
+			elif(dataPlot == 2):
+				moi2_sensor1 = moiy1
+				moi2_sensor2 = moiy2
+				buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton3])
+			elif(dataPlot == 3):
+				moi3_sensor1 = moiy1
+				moi3_sensor2 = moiy2	
+				buttonInteraction.buttonRefresh([moiResetButton, moiFinishButton])
+
+			timeTaken = arduino.serialRead()
+			print(timeTaken)			
+			self.a.event_source.stop()
+			return
+
+	def plot(self, graphFrame, dataPlot):
+		global  moiFig, canvas, moiy1, moiy2, moi_ax
 
 		moiy1 = []
 		moiy2 = []
 		moiFig = plt.figure()
-		ax = moiFig.add_subplot(1,1,1)
-		ax.set_xlim([0, 50])
-		ax.set_ylim([0, 1023])
+		moi_ax = moiFig.add_subplot(1,1,1)
+		moi_ax.set_xlim([0, 50])
+		moi_ax.set_ylim([0, 1023])
 
 		canvas = FigureCanvasTkAgg(moiFig, master=moiGraphFrame)
-		canvas.get_tk_widget().grid(row =0 , column=0)
+		canvas.get_tk_widget().grid(row =0,column = 0)
+		# matplotlib.backends.backend_tkagg.NavigationToolbar2TkAgg(canvas, moiGraphFrame)
 
 
-		def update(i):
-			global moiGraphShift
-
-			yi = arduino.serialRead()
-			yi = [float(val) for val in yi.split()]
-			moiy1.append(yi[0])
-			moiy2.append(yi[1])
-			x = range(len(moiy1))
-
-			if(len(moiy1) >= 199):
-				moiGraphShift+=1
-			else:
-				moiGraphShift = 0
-
-			ax.clear()
-			ax.set_xlim([moiGraphShift, 199+moiGraphShift])
-			ax.set_ylim([-5, 1030])
-			ax.grid(color = 'gray', linestyle='-', linewidth=0.2)
-			ax.plot(x, moiy1, '-b', label='SENSOR1')
-			ax.plot(x, moiy2, '-r', label='SENSOR2')
-			ax.legend(loc='upper right')
-
-			print (i, ': ', yi)
-			if(i==199):
-				if(dataPlot == 1):
-					buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton2])
-				elif(dataPlot == 2):
-					buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton3])
-				elif(dataPlot == 3):
-					buttonInteraction.buttonRefresh([moiResetButton, moiFinishButton])
-				return
 		
 		if(dataPlot!=0):
-			self.a = animation.FuncAnimation(moiFig, update, repeat=False, interval = 1, blit=False)
+			self.a = animation.FuncAnimation(moiFig, self.updatePlot, fargs=(dataPlot,), repeat=False, interval = 1, blit=False)
 		
 
 		moiFig.canvas.draw()
@@ -912,6 +937,7 @@ CALIBRATION MODE
 class calMode(object):
 	def __init__(self):
 		global cal_status_str, cal_window
+		allButtons[13].config(state='disabled') # Disallow  multiple instances of calMode
 
 		# Setup Window
 		cal_window = Tk()
@@ -972,6 +998,8 @@ class calMode(object):
 
 		# The window is not resizable. 
 		cal_window.resizable(0,0) 
+		cal_window.protocol("WM_DELETE_WINDOW", lambda: self.save())	# Closing Window closes TK
+
 
 		# Activate the window.
 		cal_window.mainloop()
@@ -1066,6 +1094,7 @@ class calMode(object):
 
 
 	def save(self):
+		allButtons[13].config(state='enable')
 		cal_window.destroy()
 
 """
