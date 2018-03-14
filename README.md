@@ -31,8 +31,9 @@ Load Cell Calibration
 
 **EXE build Instructions**
 1. cx_Freeze required
-2. run ```python setup.py <folderName> ``` in the command line window of the directory
-3. Open the build folder created and run mergedBuild.exe
+2. In the setup.py file, modify the directory of the includeFiles for your machine. 
+3. run ```python setup.py build ``` in the command line window of the directory
+4. Open the build folder created and run mergedBuild.exe
 
 ## Operation Instructions
 Arduino begins in STARTUP mode and the buttons will switch the states as shown below
