@@ -21,7 +21,7 @@ if sys.platform == "win32":
     base = "Win32GUI"
 
 
-setup(  name = "mergedBuild",
+setup(  name = "CubeSatTestingDevice",
     version = "1.0",
     description = "My application!",
     options = options,
