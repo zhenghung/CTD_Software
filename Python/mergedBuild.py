@@ -938,6 +938,7 @@ CALIBRATION MODE
 class calMode(object):
 	def __init__(self):
 		global cal_status_str, cal_window
+
 		allButtons[13].config(state='disabled') # Disallow  multiple instances of calMode
 
 		# Setup Window
@@ -960,14 +961,21 @@ class calMode(object):
 		beginCOMCalFrame.grid(row = 1, column = 0, sticky = 'nsew', padx =2)
 		weightCOMCalFrame = Frame(comFrame, borderwidth=3, relief='groove')
 		weightCOMCalFrame.grid(row = 1, column = 1, sticky = 'nsew', padx=2)
+		
+		zeroCOMCalFrame = Frame(comFrame, borderwidth=3, relief='groove')
+		zeroCOMCalFrame.grid(row = 1, column = 2, sticky = 'nsew', padx=2)
+
 		readCOMCalFrame = Frame(comFrame, borderwidth=3, relief='groove')
-		readCOMCalFrame.grid(row = 1, column = 2, sticky = 'nsew', padx=2)
+		readCOMCalFrame.grid(row = 1, column = 3, sticky = 'nsew', padx=2)
 		scaleCOMCalFrame = Frame(comFrame, borderwidth=3, relief='groove')
-		scaleCOMCalFrame.grid(row = 1, column = 3, sticky = 'nsew', padx=2)
+		scaleCOMCalFrame.grid(row = 1, column = 4, sticky = 'nsew', padx=2)
 
 		# Frames within moiFrame Container
-
-
+		controlMOICalFrame = Frame(moiFrame, borderwidth=3, relief='groove')
+		controlMOICalFrame.grid(row = 1, column = 0, sticky = 'nsew', padx=2)
+		resultsMOICalFrame = Frame(moiFrame, borderwidth=3, relief='groove')
+		resultsMOICalFrame.grid(row = 1, column = 1, sticky = 'nsew', padx=2)
+		
 		# layout all of the main containers
 		cal_window.grid_rowconfigure(1, weight=1)
 		cal_window.grid_columnconfigure(0, weight=1)
@@ -986,11 +994,10 @@ class calMode(object):
 		status_label.pack(fill='both')
 
 		# COM Section
-		self.comFrameLayout(comFrame, beginCOMCalFrame, weightCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame)
+		self.comFrameLayout(comFrame, beginCOMCalFrame, weightCOMCalFrame, zeroCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame)
 
 		# MOI Section
-		moilbl = Label(moiFrame, text='Moment of Inertia')
-		moilbl.grid(row=0, column=0)
+		self.moiFrameLayout(moiFrame, controlMOICalFrame, resultsMOICalFrame)
 
 
 
@@ -1006,9 +1013,9 @@ class calMode(object):
 		cal_window.mainloop()
 
 
-	def comFrameLayout(self, comFrame, beginCOMCalFrame, weightCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame):
+	def comFrameLayout(self, comFrame, beginCOMCalFrame, weightCOMCalFrame,zeroCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame):
 		# COM Section
-		global weight_CAL, weightB, weightC, readA, readB, readC, scaleA, scaleB, scaleC
+		global weight_CAL, weightB, weightC, zeroA, zeroB, zeroC, readA, readB, readC, scaleA, scaleB, scaleC
 
 		comlbl = Label(comFrame, text='Center of Mass', font='Helvetica 12 bold')
 		comlbl.grid(row=0, column=0)
@@ -1028,6 +1035,27 @@ class calMode(object):
 		weightText = ttk.Entry(weightCOMCalFrame, textvariable = weight_CAL)
 		weightText.grid(row=1, column=0)
 
+
+		readZeroLbl = Label(zeroCOMCalFrame, text = 'Read Tare Value (RAW)')
+		readZeroLbl.grid(row=0, column=0, columnspan=2)
+		zeroALbl = Label(zeroCOMCalFrame, text = 'A: ')
+		zeroALbl.grid(row=1, column = 0)
+		zeroBLbl = Label(zeroCOMCalFrame, text = 'B: ')
+		zeroBLbl.grid(row=2, column = 0)	
+		zeroCLbl = Label(zeroCOMCalFrame, text = 'C: ')
+		zeroCLbl.grid(row=3, column = 0)
+		zeroA = StringVar(cal_window)
+		zeroA.set('zeroA')
+		zeroAText = ttk.Entry(zeroCOMCalFrame, textvariable = zeroA)
+		zeroAText.grid(row=1, column=1)
+		zeroB = StringVar(cal_window)
+		zeroB.set('zeroB')
+		zeroBText = ttk.Entry(zeroCOMCalFrame, textvariable = zeroB)
+		zeroBText.grid(row=2, column=1)
+		zeroC = StringVar(cal_window)
+		zeroC.set('zeroC')
+		zeroCText = ttk.Entry(zeroCOMCalFrame, textvariable = zeroC)
+		zeroCText.grid(row=3, column=1)
 
 		readFinalLbl = Label(readCOMCalFrame, text = 'Read Final Value (RAW)')
 		readFinalLbl.grid(row=0, column=0, columnspan=2)
@@ -1072,16 +1100,132 @@ class calMode(object):
 		scaleCText.grid(row=3, column=1)
 
 		finishCOMCalButton = ttk.Button(comFrame, text = 'Calibrate Load Cells')
-		finishCOMCalButton.grid(row=1,column=4, sticky='nsew')
+		finishCOMCalButton.grid(row=1,column=5, sticky='nsew')
 
 
 
-	def moiFrameLayout(self):
+	def moiFrameLayout(self, moiFrame, controlMOICalFrame, resultsMOICalFrame):
 		# MOI Section
 		global period1, period2, period3
 
+		moilbl = Label(moiFrame, text='Moment of Inertia', font = 'Helvetica 12 bold')
+		moilbl.grid(row=0, column=0)
+
+		standbyButton = ttk.Button(controlMOICalFrame, text = 'Stand by')
+		standbyButton.grid(row=0,column=0, sticky = 'nsew')
+		emptyPlateFrame = Frame(controlMOICalFrame, borderwidth=3, relief='groove')
+		emptyPlateFrame.grid(row = 1, column = 0, sticky = 'nsew', padx=2)
+		calBlockFrame = Frame(controlMOICalFrame, borderwidth=3, relief='groove')
+		calBlockFrame.grid(row = 2, column = 0, sticky = 'nsew', padx=2)
+		resetButton = ttk.Button(controlMOICalFrame, text = 'Reset')
+		resetButton.grid(row=3, column=0, sticky='nsew')
+		calibrateButton = ttk.Button(controlMOICalFrame, text = '\nCalibrate\n')
+		calibrateButton.grid(row = 4, column =0, sticky = 'nsew')
+
+		emptyLbl = ttk.Label(emptyPlateFrame, text = 'Empty Plate Calibration', font = 'Helvetica 9 bold')
+		emptyLbl.grid(row = 0, column = 0, sticky  = 'nsew')
+		empty1Button = ttk.Button(emptyPlateFrame, text = 'Orientation 1 (X-axis upwards)')
+		empty1Button.grid(row = 1, column = 0,  sticky = 'nsew')
+		empty2Button = ttk.Button(emptyPlateFrame, text = 'Orientation 2 (Y-axis upwards)')
+		empty2Button.grid(row = 2, column = 0,  sticky = 'nsew')
+		empty3Button = ttk.Button(emptyPlateFrame, text = 'Orientation 3 (Z-axis upwards)')
+		empty3Button.grid(row = 3, column = 0,  sticky = 'nsew')
+
+		blockLbl = ttk.Label(calBlockFrame, text = 'Calibration Block Calibration', font = 'Helvetica 9 bold')
+		blockLbl.grid(row = 0, column = 0, sticky  = 'nsew')
+		block1Button = ttk.Button(calBlockFrame, text = 'Orientation 1 (X-axis upwards)')
+		block1Button.grid(row = 1, column = 0,  sticky = 'nsew')
+		block2Button = ttk.Button(calBlockFrame, text = 'Orientation 2 (Y-axis upwards)')
+		block2Button.grid(row = 2, column = 0,  sticky = 'nsew')
+		block3Button = ttk.Button(calBlockFrame, text = 'Orientation 3 (Z-axis upwards)')
+		block3Button.grid(row = 3, column = 0,  sticky = 'nsew')
 
 
+		# Results Frame
+		graphMOICalFrame = Frame(resultsMOICalFrame, borderwidth=3, relief='groove', height = 200)
+		graphMOICalFrame.grid(row = 0, column = 0, sticky = 'nsew', padx=2)
+		self.plot(resultsMOICalFrame, 0)
+
+		# Results Textbox
+		resultlbl = Label(resultsMOICalFrame, text='Results')
+		resultlbl.grid(row=1, padx=10, pady=5, sticky='nw')
+		calMOIResultsStr = StringVar(cal_window)
+		calMOIResultsStr.set('Results to be printed HERE...')
+		result_label = Label(resultsMOICalFrame, textvariable=calMOIResultsStr, justify='left', anchor='nw', font='Arial 10', fg='black', bd=2, relief='sunken')
+		result_label.config(height=3, width=77, wraplength=616)
+		result_label.grid(row=2, padx=10, pady=5)
+
+
+
+	def updatePlot(self, i, dataPlot):
+		global moiGraphShift
+
+		x_window_len = 50
+
+		yi = arduino.serialRead()
+		yi = [float(val) for val in yi.split()]
+		moiy1.append(yi[0])
+		moiy2.append(yi[1])
+		x = range(len(moiy1))
+
+		if(len(moiy1) >= x_window_len):
+			moiGraphShift+=1
+		else:
+			moiGraphShift = 0
+
+		moi_ax.clear()
+		moi_ax.set_xlim([moiGraphShift, x_window_len+moiGraphShift])
+		moi_ax.set_ylim([-5, 1030])
+		moi_ax.grid(color = 'gray', linestyle='-', linewidth=0.2)
+		moi_ax.plot(x, moiy1, '-b', label='SENSOR1')
+		moi_ax.plot(x, moiy2, '-r', label='SENSOR2')
+		moi_ax.legend(loc='upper right')
+
+		print (i, ': ', yi)
+		if(i==49):
+			arduino.serialPrint('0')
+			if(dataPlot == 1):
+				moi1_sensor1 = moiy1
+				moi1_sensor2 = moiy2
+				print("moi1_sensor1: ", moi1_sensor1)
+				print("moi1_sensor2: ", moi1_sensor2)
+				buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton2])
+			elif(dataPlot == 2):
+				moi2_sensor1 = moiy1
+				moi2_sensor2 = moiy2
+				buttonInteraction.buttonRefresh([moiResetButton, moiMeasureButton3])
+			elif(dataPlot == 3):
+				moi3_sensor1 = moiy1
+				moi3_sensor2 = moiy2	
+				buttonInteraction.buttonRefresh([moiResetButton, moiFinishButton])
+
+			timeTaken = arduino.serialRead()
+			print(timeTaken)			
+			self.a.event_source.stop()
+			return
+
+	def plot(self, frame, dataPlot):
+		global  moiFig, canvas, moiy1, moiy2, moi_ax
+
+		moiy1 = []
+		moiy2 = []
+		moiFig = plt.figure(figsize=(6,1.8))
+		moi_ax = moiFig.add_subplot(1,1,1)
+		moi_ax.set_xlim([0, 50])
+		moi_ax.set_ylim([0, 1023])
+
+		canvas = FigureCanvasTkAgg(moiFig, master=frame)
+		canvas.get_tk_widget().grid(row =0,column = 0)
+		# matplotlib.backends.backend_tkagg.NavigationToolbar2TkAgg(canvas, moiGraphFrame)
+
+
+		
+		if(dataPlot!=0):
+			self.a = animation.FuncAnimation(moiFig, self.updatePlot, fargs=(dataPlot,), repeat=False, interval = 1, blit=False)
+		
+
+		moiFig.canvas.draw()
+		return
 
 	def save(self):
 		allButtons[13].config(state='enable')
