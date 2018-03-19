@@ -30,8 +30,8 @@ class arduino(object):
 		try:
 			# Auto select first serialport (unplug other serialport connections)
 			list = serial.tools.list_ports.comports()
-			comstr = list[0]
-			ser = serial.Serial(str(comstr[0]), 9600)
+			portstr = list[0]
+			ser = serial.Serial(str(portstr[0]), 9600)
 			connect.destroy()
 			connect = Label(controlFrame, text="Success", font='Calibri 12 bold', fg='green', width=7)
 			connect.grid(row=0, column=1)
@@ -476,10 +476,10 @@ class comMode():
 		# COM Preset Values
 		CS_h = 34.5
 		CS_w = 10
-		D = 14
+		D = 20
 		L = D*math.sin(math.pi/3) 
 		r = (D/2)/math.sin(math.pi/3)
-		theta = math.radians(43.17)
+		theta = math.radians(30)
 
 		# In Frame 1 (Triangle Frame)
 		# A is placed at (0, 8.08)
@@ -611,10 +611,10 @@ class comMode():
 		ax.set_ylabel('Y')
 		ax.set_zlabel('Z')
 		
-		distance = 25 				# Straight line distance between adjacent load cells
-		length = distance*0.866 	# Length of Normal to the opposite line connecting 2 load cells
 
 		if(cs_config.get()=='TEST'):
+			distance = 25 				# Straight line distance between adjacent load cells
+			length = distance*0.866 	# Length of Normal to the opposite line connecting 2 load cells
 			ax.text(0, distance/2, 0, 'A', size=20, zorder=1, color='k')
 			ax.text(length, 0, 0, 'B', size=20, zorder=1, color='k')
 			ax.text(length, distance, 0, 'C', size=20, zorder=1, color='k')
@@ -1009,13 +1009,14 @@ class calMode(object):
 		cal_window.protocol("WM_DELETE_WINDOW", lambda: self.save())	# Closing Window closes TK
 
 
+		cal_window.bind('<Escape>', lambda e: self.save())
 		# Activate the window.
 		cal_window.mainloop()
 
 
 	def comFrameLayout(self, comFrame, beginCOMCalFrame, weightCOMCalFrame,zeroCOMCalFrame, readCOMCalFrame, scaleCOMCalFrame):
 		# COM Section
-		global weight_CAL, weightB, weightC, zeroA, zeroB, zeroC, readA, readB, readC, scaleA, scaleB, scaleC
+		global weightA_CAL, weightB_CAL, weightC_CAL, zeroA, zeroB, zeroC, readA, readB, readC, scaleA, scaleB, scaleC
 
 		comlbl = Label(comFrame, text='Center of Mass', font='Helvetica 12 bold')
 		comlbl.grid(row=0, column=0)
@@ -1030,10 +1031,24 @@ class calMode(object):
 		comWeightLbl = Label(weightCOMCalFrame, text = 'Weight (g)')
 		comWeightLbl.grid(row=0, column=0, columnspan=2)
 
-		weight_CAL = StringVar(cal_window)
-		weight_CAL.set('weight')
-		weightText = ttk.Entry(weightCOMCalFrame, textvariable = weight_CAL)
-		weightText.grid(row=1, column=0)
+		# weightALbl = Label(weightCOMCalFrame, text = 'A: ')
+		# weightALbl.grid(row=1, column = 0)
+		# weightBLbl = Label(weightCOMCalFrame, text = 'B: ')
+		# weightBLbl.grid(row=2, column = 0)	
+		# weightCLbl = Label(weightCOMCalFrame, text = 'C: ')
+		# weightCLbl.grid(row=3, column = 0)
+		weightA_CAL = StringVar(cal_window)
+		weightA_CAL.set('weight')
+		weightAText = ttk.Entry(weightCOMCalFrame, textvariable = weightA_CAL)
+		weightAText.grid(row=1, column=1)
+		# weightB_CAL = StringVar(cal_window)
+		# weightB_CAL.set('weightB')
+		# weightBText = ttk.Entry(weightCOMCalFrame, textvariable = weightB_CAL)
+		# weightBText.grid(row=2, column=1)
+		# weightC_CAL = StringVar(cal_window)
+		# weightC_CAL.set('weightC')
+		# weightCText = ttk.Entry(weightCOMCalFrame, textvariable = weightC_CAL)
+		# weightCText.grid(row=3, column=1)
 
 
 		readZeroLbl = Label(zeroCOMCalFrame, text = 'Read Tare Value (RAW)')
@@ -1112,33 +1127,39 @@ class calMode(object):
 		moilbl.grid(row=0, column=0)
 
 		standbyButton = ttk.Button(controlMOICalFrame, text = 'Stand by')
-		standbyButton.grid(row=0,column=0, sticky = 'nsew')
+		standbyButton.grid(row=0,column=0, columnspan = 2 , sticky = 'nsew')
 		emptyPlateFrame = Frame(controlMOICalFrame, borderwidth=3, relief='groove')
-		emptyPlateFrame.grid(row = 1, column = 0, sticky = 'nsew', padx=2)
+		emptyPlateFrame.grid(row = 1, column = 0, columnspan = 2, sticky = 'nsew', padx=2)
 		calBlockFrame = Frame(controlMOICalFrame, borderwidth=3, relief='groove')
-		calBlockFrame.grid(row = 2, column = 0, sticky = 'nsew', padx=2)
+		calBlockFrame.grid(row = 2, column = 0, columnspan = 2, sticky = 'nsew', padx=2)
 		resetButton = ttk.Button(controlMOICalFrame, text = 'Reset')
-		resetButton.grid(row=3, column=0, sticky='nsew')
+		resetButton.grid(row=3, column=0, columnspan = 2, sticky='nsew')
+		constantLbl = Label(controlMOICalFrame, text = 'Constant: ')
+		constantLbl.grid(row = 4, column = 0, sticky = 'nsew')
+		moiConstant = StringVar(cal_window)
+		moiConstant.set('4329')
+		constantEntry = ttk.Entry(controlMOICalFrame, width = 10, textvariable = moiConstant)
+		constantEntry.grid(row = 4, column = 1, sticky = 'nsew')
 		calibrateButton = ttk.Button(controlMOICalFrame, text = '\nCalibrate\n')
-		calibrateButton.grid(row = 4, column =0, sticky = 'nsew')
+		calibrateButton.grid(row = 5, column =0, columnspan = 2, sticky = 'nsew')
 
 		emptyLbl = ttk.Label(emptyPlateFrame, text = 'Empty Plate Calibration', font = 'Helvetica 9 bold')
-		emptyLbl.grid(row = 0, column = 0, sticky  = 'nsew')
+		emptyLbl.grid(row = 0, column = 0, columnspan = 2, sticky  = 'nsew')
 		empty1Button = ttk.Button(emptyPlateFrame, text = 'Orientation 1 (X-axis upwards)')
-		empty1Button.grid(row = 1, column = 0,  sticky = 'nsew')
+		empty1Button.grid(row = 1, column = 0, columnspan = 2,  sticky = 'nsew')
 		empty2Button = ttk.Button(emptyPlateFrame, text = 'Orientation 2 (Y-axis upwards)')
-		empty2Button.grid(row = 2, column = 0,  sticky = 'nsew')
+		empty2Button.grid(row = 2, column = 0, columnspan = 2,  sticky = 'nsew')
 		empty3Button = ttk.Button(emptyPlateFrame, text = 'Orientation 3 (Z-axis upwards)')
-		empty3Button.grid(row = 3, column = 0,  sticky = 'nsew')
+		empty3Button.grid(row = 3, column = 0, columnspan = 2,  sticky = 'nsew')
 
 		blockLbl = ttk.Label(calBlockFrame, text = 'Calibration Block Calibration', font = 'Helvetica 9 bold')
-		blockLbl.grid(row = 0, column = 0, sticky  = 'nsew')
+		blockLbl.grid(row = 0, column = 0, columnspan = 2, sticky  = 'nsew')
 		block1Button = ttk.Button(calBlockFrame, text = 'Orientation 1 (X-axis upwards)')
-		block1Button.grid(row = 1, column = 0,  sticky = 'nsew')
+		block1Button.grid(row = 1, column = 0, columnspan = 2,  sticky = 'nsew')
 		block2Button = ttk.Button(calBlockFrame, text = 'Orientation 2 (Y-axis upwards)')
-		block2Button.grid(row = 2, column = 0,  sticky = 'nsew')
+		block2Button.grid(row = 2, column = 0, columnspan = 2,  sticky = 'nsew')
 		block3Button = ttk.Button(calBlockFrame, text = 'Orientation 3 (Z-axis upwards)')
-		block3Button.grid(row = 3, column = 0,  sticky = 'nsew')
+		block3Button.grid(row = 3, column = 0, columnspan = 2,  sticky = 'nsew')
 
 
 		# Results Frame
@@ -1152,7 +1173,7 @@ class calMode(object):
 		calMOIResultsStr = StringVar(cal_window)
 		calMOIResultsStr.set('Results to be printed HERE...')
 		result_label = Label(resultsMOICalFrame, textvariable=calMOIResultsStr, justify='left', anchor='nw', font='Arial 10', fg='black', bd=2, relief='sunken')
-		result_label.config(height=3, width=77, wraplength=616)
+		result_label.config(height=5, width=77, wraplength=616)
 		result_label.grid(row=2, padx=10, pady=5)
 
 
