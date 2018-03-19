@@ -4,8 +4,8 @@ HX711 cellA;
 HX711 cellB;
 HX711 cellC;
 
-enum state_enum {STARTUP, COM_STANDBY, COM_M1, COM_M2, MOI_STANDBY, MOI_M1, MOI_M2, MOI_M3};
-enum action_enum {CHGCOM, BEGIN_COM1, BEGIN_COM2, COM_DONE, CHGMOI, BEGIN_MOI1, BEGIN_MOI2, BEGIN_MOI3, MOI_DONE, RESET, TARE, INVALID};
+enum state_enum {STARTUP, COM_STANDBY, COM_M1, COM_M2, MOI_STANDBY, MOI_M1, MOI_M2, MOI_M3, CAL_MODE, CAL_COM, COM_BLOCK, CAL_MOI, MOI_EMPTY, MOI_BLOCK};
+enum action_enum {CHGCOM, BEGIN_COM1, BEGIN_COM2, COM_DONE, CHGMOI, BEGIN_MOI1, BEGIN_MOI2, BEGIN_MOI3, MOI_DONE, RESET, TARE, INVALID, CAL, COMSTD, COM_FINAL, CALCOMDONE, MOISTD, CAL_EMPTY, CAL_BLOCK, CALMOIDONE};
 
 int serialInput;
 int firstLaunch = true;
@@ -222,6 +222,9 @@ void state_machine(uint8_t action){
  *
  * [  'A' ,    'S'   ,    'D'   ,    'F'   ,  'G'   ]
  * [CHGMOI,BEGIN_MOI1,BEGIN_MOI2,BEGIN_MOI3,MOI_DONE] 
+ *
+ * ['Z',   'X' ,    'C'   ,     'V'   ,   'B' ,    'N'   ,    'M'   ,     '<'   ]
+ * [CAL, COMSTD, COM_FINAL, CALCOMDONE, MOISTD, CAL_EMPTY, CAL_BLOCK, CALMOIDONE]
  */
 uint8_t listeningLoop(){
   if(Serial.available()>0){
@@ -275,114 +278,13 @@ void moi_measure(int orientation){
   /* TALLY NUMBER OF OSCILLATIONS */
   /* AFTER A CERTAIN OSCILLATION, STOP TIMING */
   /* SERIAL PRINT TOTAL TIME AND AVERAGE PERIOD */
-  /*
-  unsigned long start_time = 0;
-  unsigned long end_time = 0;
-  int counter = -1;
-  int direction = 0; // 0 for CW, 1 for CCW
-  int directionChanged = 0;
-  
-  while(counter < 6){
 
-    int measure1 = analogRead(SENSOR1);
-    int measure2 = analogRead(SENSOR2);
-
-    // clockwise
-    if(measure1 - measure2 > 500){
-      if(direction == 1){
-        directionChanged = 1;
-      }
-      direction = 0;
-    }
-    // anti-clockwise
-    else if(measure2 - measure1 > 500){
-      if(direction == 0){
-        directionChanged = 1;
-      }
-      direction = 1;
-    }
-
-    if(directionChanged){
-      counter++;
-      directionChanged = 0;
-    }
-
-    if(analogRead(SENSOR1) > 512 && counter == -1){
-      start_time = millis();
-      counter = 0;
-    }  
-    if(analogRead(SENSOR1) < )
-  }
-  unsigned end_time = millis();
-  long period = (end_time - start_time)/(counter/2);
-
-  Serial.print("Period (ms): ");
-  Serial.println(period);
-
-  oscillations = 10;
-  Serial.print("OSC: ");
-  Serial.println(oscillations);
-  */
-
-
-
-  unsigned long start_time = millis();
-  // unsigned long end_time;
-  // int oscCount = 0; // Count for every 2 passCount;
-
-  // while(oscCount<10){
-  //   /* CODE TO CHECK FOR ROTATION DIRECTION */
-  //   int direction = 1; // CW
-  //   int directionChanged = 0; // 0 for unchanged, 1 for changed
-  //   int passCount = 0; // Count for everytime directionChanged
-
-  //   int measure1 = analogRead(SENSOR1); 
-  //   int measure2 = analogRead(SENSOR2);
-
-  //   Serial.print(measure1);
-  //   Serial.print(" ");
-  //   Serial.print(measure2);
-  //   Serial.print("\n");
-
-  //   if(measure1 - measure2 > 0){
-  //     if(direction == -1){
-  //       directionChanged = 1;
-  //     }else{
-  //       directionChanged = 0;
-  //     }
-  //     direction = 1;
-
-  //   }else if(measure1 - measure2 < 0){
-  //     if(direction == 1){
-  //       directionChanged = 1;
-  //     }else{
-  //       directionChanged = 0;
-  //     }
-  //     direction = -1;
-  //   }
-
-  //   if(directionChanged == 1){
-  //     if(passCount==0){
-  //       start_time = millis();
-  //     }else{
-  //       passCount++;
-  //     }
-  //     if(passCount!=0 && (passCount % 2)==0){
-  //       oscCount++;
-  //       if(oscCount==10){
-  //         end_time = millis()
-  //       }
-  //     }
-  //   }
-
-  //   /*TIMEOUT*/
-  //   if(Serial.available()>0){
-  //     if(Serial.read()=='0'){
-  //       break;
-  //     }
-  //   }
-  //   delay(100);
-  // }
+  int direction = 1; // CW , 0 for CCW
+  int directionChanged = 0; // 0 for unchanged, 1 for changed
+  int passCount = 0; // Count for everytime directionChanged
+  int oscCount = 0; // Count for number of Oscillations
+  unsigned long start_time; 
+  unsigned long end_time;
 
   for(int counter = 0; counter<1000000; counter++){
     int measure1 = analogRead(SENSOR1);
@@ -392,23 +294,52 @@ void moi_measure(int orientation){
     Serial.print(" ");
     Serial.print(measure2);
     Serial.print("\n");
-    delay(100);
+    
+    if(measure1 - measure2 > 0){
+      if(direction == -1){
+        directionChanged = 1;
+      }else{
+        directionChanged = 0;
+      }
+      direction = 1;
 
-    counter++;
+    }else if(measure1 - measure2 < 0){
+      if(direction == 1){
+        directionChanged = 1;
+      }else{
+        directionChanged = 0;
+      }
+      direction = -1;
+    }
+
+    if(directionChanged == 1){
+      if(passCount==0){
+        start_time = millis();
+      }else{
+        passCount++;
+      }
+      if(passCount!=0 && (passCount % 2)==0){
+        oscCount++;
+        if(oscCount==10){
+          end_time = millis();
+        }
+      }
+    }
+
+    // TIMEOUT
     if(Serial.available()>0){
       int x = Serial.read();
       if(x =='0'){
         break;
       }
     }
+    delay(100);
   }
 
-  unsigned long end_time = millis();
+  end_time = millis();
   unsigned long duration = end_time-start_time;
   Serial.print("time: ");
   Serial.println(duration);
-
-
 }
 
 void tareCells(){
