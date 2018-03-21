@@ -1121,17 +1121,17 @@ class calMode(object):
 
 	def moiFrameLayout(self, moiFrame, controlMOICalFrame, resultsMOICalFrame):
 		# MOI Section
-		global period1, period2, period3
+		global Ix, Iy, Iz, moiConstant
 
 		moilbl = Label(moiFrame, text='Moment of Inertia', font = 'Helvetica 12 bold')
 		moilbl.grid(row=0, column=0)
 
 		standbyButton = ttk.Button(controlMOICalFrame, text = 'Stand by')
 		standbyButton.grid(row=0,column=0, columnspan = 2 , sticky = 'nsew')
-		emptyPlateFrame = Frame(controlMOICalFrame, borderwidth=3, relief='groove')
-		emptyPlateFrame.grid(row = 1, column = 0, columnspan = 2, sticky = 'nsew', padx=2)
 		calBlockFrame = Frame(controlMOICalFrame, borderwidth=3, relief='groove')
-		calBlockFrame.grid(row = 2, column = 0, columnspan = 2, sticky = 'nsew', padx=2)
+		calBlockFrame.grid(row = 1, column = 0, columnspan = 2, sticky = 'nsew', padx=2)
+		emptyPlateFrame = Frame(controlMOICalFrame, borderwidth=3, relief='groove')
+		emptyPlateFrame.grid(row = 2, column = 0, columnspan = 2, sticky = 'nsew', padx=2)
 		resetButton = ttk.Button(controlMOICalFrame, text = 'Reset')
 		resetButton.grid(row=3, column=0, columnspan = 2, sticky='nsew')
 		constantLbl = Label(controlMOICalFrame, text = 'Constant: ')
@@ -1143,27 +1143,47 @@ class calMode(object):
 		calibrateButton = ttk.Button(controlMOICalFrame, text = '\nCalibrate\n')
 		calibrateButton.grid(row = 5, column =0, columnspan = 2, sticky = 'nsew')
 
-		emptyLbl = ttk.Label(emptyPlateFrame, text = 'Empty Plate Calibration', font = 'Helvetica 9 bold')
-		emptyLbl.grid(row = 0, column = 0, columnspan = 2, sticky  = 'nsew')
-		empty1Button = ttk.Button(emptyPlateFrame, text = 'Orientation 1 (X-axis upwards)')
-		empty1Button.grid(row = 1, column = 0, columnspan = 2,  sticky = 'nsew')
-		empty2Button = ttk.Button(emptyPlateFrame, text = 'Orientation 2 (Y-axis upwards)')
-		empty2Button.grid(row = 2, column = 0, columnspan = 2,  sticky = 'nsew')
-		empty3Button = ttk.Button(emptyPlateFrame, text = 'Orientation 3 (Z-axis upwards)')
-		empty3Button.grid(row = 3, column = 0, columnspan = 2,  sticky = 'nsew')
-
-		blockLbl = ttk.Label(calBlockFrame, text = 'Calibration Block Calibration', font = 'Helvetica 9 bold')
+		blockLbl = ttk.Label(calBlockFrame, text = 'Loaded Calibration', font = 'Helvetica 9 bold')
 		blockLbl.grid(row = 0, column = 0, columnspan = 2, sticky  = 'nsew')
+		IxLbl = Label(calBlockFrame, text = 'Ix: ')
+		IxLbl.grid(row=1, column = 0)
+		IyLbl = Label(calBlockFrame, text = 'Iy: ')
+		IyLbl.grid(row=2, column = 0)	
+		IzLbl = Label(calBlockFrame, text = 'Iz: ')
+		IzLbl.grid(row=3, column = 0)
+		Ix = StringVar(cal_window)
+		Ix.set('Ix')
+		IxText = ttk.Entry(calBlockFrame, textvariable = Ix)
+		IxText.grid(row=1, column=1)
+		Iy = StringVar(cal_window)
+		Iy.set('Iy')
+		IyText = ttk.Entry(calBlockFrame, textvariable = Iy)
+		IyText.grid(row=2, column=1)
+		Iz = StringVar(cal_window)
+		Iz.set('Iz')
+		IzText = ttk.Entry(calBlockFrame, textvariable = Iz)
+		IzText.grid(row=3, column=1)
+
 		block1Button = ttk.Button(calBlockFrame, text = 'Orientation 1 (X-axis upwards)')
-		block1Button.grid(row = 1, column = 0, columnspan = 2,  sticky = 'nsew')
+		block1Button.grid(row = 4, column = 0, columnspan = 2,  sticky = 'nsew')
 		block2Button = ttk.Button(calBlockFrame, text = 'Orientation 2 (Y-axis upwards)')
-		block2Button.grid(row = 2, column = 0, columnspan = 2,  sticky = 'nsew')
+		block2Button.grid(row = 5, column = 0, columnspan = 2,  sticky = 'nsew')
 		block3Button = ttk.Button(calBlockFrame, text = 'Orientation 3 (Z-axis upwards)')
-		block3Button.grid(row = 3, column = 0, columnspan = 2,  sticky = 'nsew')
+		block3Button.grid(row = 6, column = 0, columnspan = 2,  sticky = 'nsew')
+
+
+		emptyLbl = ttk.Label(emptyPlateFrame, text = 'Unloaded Calibration', font = 'Helvetica 9 bold')
+		emptyLbl.grid(row = 0, column = 0, columnspan = 2, sticky  = 'nsew')
+		empty1Button = ttk.Button(emptyPlateFrame, text = 'Outer Fixture (X or Y upwards)')
+		empty1Button.grid(row = 1, column = 0, columnspan = 2,  sticky = 'nsew')
+		empty2Button = ttk.Button(emptyPlateFrame, text = 'Inner Fixture (Z upwards)')
+		empty2Button.grid(row = 2, column = 0, columnspan = 2,  sticky = 'nsew')
+
+
 
 
 		# Results Frame
-		graphMOICalFrame = Frame(resultsMOICalFrame, borderwidth=3, relief='groove', height = 200)
+		graphMOICalFrame = Frame(resultsMOICalFrame, borderwidth=3, relief='groove', height = 250)
 		graphMOICalFrame.grid(row = 0, column = 0, sticky = 'nsew', padx=2)
 		self.plot(resultsMOICalFrame, 0)
 
@@ -1230,7 +1250,7 @@ class calMode(object):
 
 		moiy1 = []
 		moiy2 = []
-		moiFig = plt.figure(figsize=(6,1.8))
+		moiFig = plt.figure(figsize=(6,2.2))
 		moi_ax = moiFig.add_subplot(1,1,1)
 		moi_ax.set_xlim([0, 50])
 		moi_ax.set_ylim([0, 1023])
