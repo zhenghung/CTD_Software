@@ -1,7 +1,7 @@
 # Python files 
 Python/__pycache__
 Python/build
-Python/CTD-GUI.zip
+Python/*.zip
 Python/test.py
 
 # Arduino files
