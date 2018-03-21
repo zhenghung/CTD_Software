@@ -5,6 +5,7 @@ Python/*.zip
 Python/test.py
 
 # Arduino files
+Arduino/*.zip
 *.hex
 
 # Windows files
