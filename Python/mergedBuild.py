@@ -392,7 +392,7 @@ class comMode():
 
 	def measure1():
 		# YZ coordinates
-		global loadCell1A, loadCell1B, loadCell1C, graphFrame
+		global loadCell1A, loadCell1B, loadCell1C, comGraphFrame
 		arduino.serialPrint('W')
 		if(arduino.waitingOnSerial('BEGIN_COM1')):
 			ardStatus.set('COM Measure 1 State')	
@@ -419,14 +419,39 @@ class comMode():
 
 				# For TESTING
 				if(cs_config.get()=='TEST'):
-					comCoord = comMode.calcCOM()
+					comCoord = comMode.testCOM()
 
 					comGraphFrame.destroy()
 					comGraphFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
 					comGraphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
-					comMode.drawGraphs(comGraphFrame, [comCoord[0],comCoord[1],0], 'x')
+					comMode.drawGraphs(comGraphFrame, [comCoord[0],comCoord[1],0], 'done')
 
 					com_result_str.set(com_result_str.get()+'X: '+str(comCoord[0])+' ; Y: '+str(comCoord[1])+'\n')
+
+
+	def testCOM(): # TESTMode COM
+		# TEST Preset Values
+		D=25
+		L=D*0.866 
+
+		# A is placed at (0, 5)
+		# B is placed at (8.7, 0)
+		# C is placed at (8.7, 10)
+
+		# Only for TESTING purposes
+		W = loadCell1A+loadCell1B+loadCell1C
+
+		# Orientation 1 (default frame 0)
+		fromA_x1 = (loadCell1B+loadCell1C)*L/W		
+		fromA_y1 = (loadCell1C-loadCell1B)*D/(2*W)
+
+		fromO_x1 = fromA_x1
+		fromO_y1 = (D/2) + fromA_y1
+
+		print(fromO_x1)
+		print(fromO_y1)
+
+		return [fromO_x1, fromO_y1]
 
 	def measure2():
 		# XZ coordinates
@@ -487,12 +512,12 @@ class comMode():
 		# C is placed at (7, -4.04)
 
 		# Only for TESTING purposes
-		loadCell1A = 500
-		loadCell1B = 500
-		loadCell1C = 1500 - loadCell1B - loadCell1A
-		loadCell2A = 500
-		loadCell2B = 500
-		loadCell2C = 1500 - loadCell2A - loadCell2B
+		# loadCell1A = 500
+		# loadCell1B = 500
+		# loadCell1C = 1500 - loadCell1B - loadCell1A
+		# loadCell2A = 500
+		# loadCell2B = 500
+		# loadCell2C = 1500 - loadCell2A - loadCell2B
 
 		W = loadCell1A+loadCell1B+loadCell1C
 
