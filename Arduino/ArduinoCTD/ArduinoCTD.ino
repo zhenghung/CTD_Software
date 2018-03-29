@@ -86,9 +86,11 @@ void state_machine(uint8_t action){
         prevAction = BEGIN_COM1;
       }
       else if(action == RESET){
-        state = COM_STANDBY;
-        Serial.println("RESET");
-        prevAction = RESET;
+        if(prevAction!=RESET){
+          state = COM_STANDBY;
+          Serial.println("RESET");
+          prevAction = RESET;
+        }
       }
       else if(action == TARE){
         if(prevAction != TARE){
