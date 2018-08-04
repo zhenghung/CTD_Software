@@ -414,13 +414,17 @@ class comMode():
 				print(loadCell1BStr)
 				print(loadCell1CStr)
 
+				loadCell1AStr = 'A: 172.55'
+				loadCell1BStr = 'B: 124.12'
+				loadCell1CStr = 'C: 201.34'
+
 				com_status_str.set('Orientation 1 Measurement Done')
 				com_result_str.set(loadCell1AStr+'    '+loadCell1BStr+'    '+loadCell1CStr+'\n')
 
 				# For TESTING
 				if(cs_config.get()=='TEST'):
-					comCoord = comMode.testCOM()
-
+					# comCoord = comMode.testCOM()
+					comCoord = [12.01, 18.11]
 					comGraphFrame.destroy()
 					comGraphFrame = Frame(comResultFrame, borderwidth=3, relief='groove')
 					comGraphFrame.grid(row=0, column=0, sticky='nsew', padx=10)
